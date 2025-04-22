@@ -505,7 +505,7 @@ const CustomerSupport = () => {
                   </div>
                   <div className="info-item">
                     <span className="info-label">Total</span>
-                    <span className="info-value">${ticket.order.total.toFixed(2)}</span>
+                    <span className="info-value">₹{ticket.order.total.toFixed(2)}</span>
                   </div>
                   <button className="view-order-button">
                     <Package size={14} />

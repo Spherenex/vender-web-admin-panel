@@ -324,15 +324,15 @@ const OrderManagement = () => {
                   <tr key={item.id}>
                     <td>{item.name}</td>
                     <td>{item.quantity}</td>
-                    <td>${item.price.toFixed(2)}</td>
-                    <td>${(item.quantity * item.price).toFixed(2)}</td>
+                    <td>₹{item.price.toFixed(2)}</td>
+                    <td>₹{(item.quantity * item.price).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr>
                   <td colSpan="3"><strong>Total</strong></td>
-                  <td><strong>${order.total.toFixed(2)}</strong></td>
+                  <td><strong>₹{order.total.toFixed(2)}</strong></td>
                 </tr>
               </tfoot>
             </table>
@@ -460,7 +460,7 @@ const OrderManagement = () => {
                   </div>
                   
                   <div className="order-amount">
-                    <p className="amount">${order.total.toFixed(2)}</p>
+                    <p className="amount">₹{order.total.toFixed(2)}</p>
                     <p className="items-count">{order.items.length} items</p>
                   </div>
                 </div>
