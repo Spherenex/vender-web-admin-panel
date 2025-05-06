@@ -395,6 +395,7 @@
 }
 
 .view-details-button {
+  width: auto;
   display: flex;
   align-items: center;
   padding: 0.5rem 1rem;

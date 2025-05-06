@@ -1,793 +1,1322 @@
-// import React, { useState } from 'react';
-// import { 
-//   Store, 
-//   Map, 
-//   Star, 
-//   Package, 
-//   DollarSign, 
-//   TrendingUp, 
-//   ChevronRight,
-//   Settings,
-//   Clock,
-//   CheckCircle,
-//   AlertTriangle
-// } from 'lucide-react';
-// import '../styles/ShopPartnerDashboard.css'; // Import your CSS file for styling
-
-// const ShopPartnerDashboard = () => {
-//   // State for active tab
-//   const [activeTab, setActiveTab] = useState('overview');
-  
-//   // State for selected shop
-//   const [selectedShop, setSelectedShop] = useState(null);
-  
-//   // Mock data for shops
-//   const shops = [
-//     {
-//       id: 'S001',
-//       name: 'Fresh Foods Market',
-//       location: { address: '230 Broadway, New York, NY', lat: 40.7138, lng: -74.0070 },
-//       rating: 4.8,
-//       reviews: 256,
-//       category: 'Grocery',
-//       joinDate: '2024-07-15',
-//       status: 'active',
-//       earnings: {
-//         currentMonth: 12580.45,
-//         previousMonth: 11250.30,
-//         total: 58945.75
-//       },
-//       orders: {
-//         pending: 3,
-//         processing: 5,
-//         completed: 89,
-//         cancelled: 2
-//       },
-//       performanceMetrics: {
-//         orderAcceptanceRate: 98.5,
-//         preparationTime: 12.4, // minutes
-//         customerSatisfaction: 4.7
-//       },
-//       topProducts: [
-//         { name: 'Organic Apples', sales: 154, revenue: 769.46 },
-//         { name: 'Free Range Eggs', sales: 128, revenue: 639.72 },
-//         { name: 'Artisan Bread', sales: 98, revenue: 392.02 }
-//       ],
-//       recentActivity: [
-//         { type: 'order_received', time: '2025-04-18T14:30:00', details: 'New order #12345 received' },
-//         { type: 'order_completed', time: '2025-04-18T13:15:00', details: 'Order #12343 marked as completed' },
-//         { type: 'review_received', time: '2025-04-18T11:22:00', details: 'New 5-star review received' },
-//         { type: 'payout_processed', time: '2025-04-17T09:00:00', details: 'Weekly payout of ₹2,450.78 processed' }
-//       ]
-//     },
-//     {
-//       id: 'S002',
-//       name: 'Urban Eats',
-//       location: { address: '500 Park Ave, New York, NY', lat: 40.7348, lng: -74.0280 },
-//       rating: 4.6,
-//       reviews: 189,
-//       category: 'Restaurant',
-//       joinDate: '2024-08-22',
-//       status: 'active',
-//       earnings: {
-//         currentMonth: 9875.20,
-//         previousMonth: 8950.10,
-//         total: 42680.35
-//       },
-//       orders: {
-//         pending: 2,
-//         processing: 4,
-//         completed: 72,
-//         cancelled: 1
-//       },
-//       performanceMetrics: {
-//         orderAcceptanceRate: 97.2,
-//         preparationTime: 18.7, // minutes
-//         customerSatisfaction: 4.5
-//       },
-//       topProducts: [
-//         { name: 'Artisan Pizza', sales: 112, revenue: 1679.88 },
-//         { name: 'Caesar Salad', sales: 87, revenue: 782.13 },
-//         { name: 'Grilled Chicken Sandwich', sales: 76, revenue: 683.24 }
-//       ],
-//       recentActivity: [
-//         { type: 'order_received', time: '2025-04-18T15:10:00', details: 'New order #12347 received' },
-//         { type: 'order_completed', time: '2025-04-18T14:05:00', details: 'Order #12342 marked as completed' },
-//         { type: 'issue_reported', time: '2025-04-18T12:30:00', details: 'Customer reported missing items in order #12340' },
-//         { type: 'payout_processed', time: '2025-04-17T09:00:00', details: 'Weekly payout of ₹1,875.45 processed' }
-//       ]
-//     },
-//     {
-//       id: 'S003',
-//       name: 'Health & Wellness Market',
-//       location: { address: '350 Madison Ave, New York, NY', lat: 40.7508, lng: -73.9772 },
-//       rating: 4.5,
-//       reviews: 128,
-//       category: 'Health Foods',
-//       joinDate: '2024-09-05',
-//       status: 'inactive',
-//       earnings: {
-//         currentMonth: 5240.30,
-//         previousMonth: 6120.85,
-//         total: 28450.60
-//       },
-//       orders: {
-//         pending: 0,
-//         processing: 0,
-//         completed: 65,
-//         cancelled: 0
-//       },
-//       performanceMetrics: {
-//         orderAcceptanceRate: 95.8,
-//         preparationTime: 11.2, // minutes
-//         customerSatisfaction: 4.4
-//       },
-//       topProducts: [
-//         { name: 'Protein Smoothie', sales: 89, revenue: 534.00 },
-//         { name: 'Organic Vitamins', sales: 67, revenue: 1005.00 },
-//         { name: 'Vegan Protein Bars', sales: 58, revenue: 290.00 }
-//       ],
-//       recentActivity: [
-//         { type: 'shop_deactivated', time: '2025-04-15T17:00:00', details: 'Shop temporarily deactivated due to inventory update' },
-//         { type: 'order_completed', time: '2025-04-15T14:45:00', details: 'Order #12335 marked as completed' },
-//         { type: 'inventory_updated', time: '2025-04-15T11:30:00', details: '25 new products added to inventory' },
-//         { type: 'payout_processed', time: '2025-04-10T09:00:00', details: 'Weekly payout of ₹1,250.45 processed' }
-//       ]
-//     }
-//   ];
-  
-//   // Function to format currency
-//   const formatCurrency = (amount) => {
-//     return new Intl.NumberFormat('en-US', {
-//       style: 'currency',
-//       currency: 'USD',
-//       minimumFractionDigits: 2
-//     }).format(amount);
-//   };
-  
-//   // Function to format date
-//   const formatDate = (dateString) => {
-//     const options = { 
-//       year: 'numeric', 
-//       month: 'short', 
-//       day: 'numeric',
-//       hour: '2-digit',
-//       minute: '2-digit'
-//     };
-//     return new Date(dateString).toLocaleDateString(undefined, options);
-//   };
-  
-//   // Function to get shop performance status
-//   const getShopPerformanceStatus = (metrics) => {
-//     if (metrics.orderAcceptanceRate > 95 && metrics.customerSatisfaction > 4.5) {
-//       return 'excellent';
-//     } else if (metrics.orderAcceptanceRate > 90 && metrics.customerSatisfaction > 4.0) {
-//       return 'good';
-//     } else if (metrics.orderAcceptanceRate > 85 && metrics.customerSatisfaction > 3.5) {
-//       return 'average';
-//     } else {
-//       return 'needs-improvement';
-//     }
-//   };
-  
-//   // If a shop is selected, show detailed view
-//   if (selectedShop) {
-//     const shop = shops.find(s => s.id === selectedShop);
-    
-//     return (
-//       <div className="shop-partner-dashboard">
-//         <div className="shop-detail-header">
-//           <button className="back-button" onClick={() => setSelectedShop(null)}>
-//             &larr; Back to Shops
-//           </button>
-//           <h1>{shop.name}</h1>
-//           <div className={`shop-status ${shop.status}`}>
-//             {shop.status === 'active' ? 'Active' : 'Inactive'}
-//           </div>
-//         </div>
-        
-//         <div className="shop-tabs">
-//           <button 
-//             className={`shop-tab ${activeTab === 'overview' ? 'active' : ''}`}
-//             onClick={() => setActiveTab('overview')}
-//           >
-//             Overview
-//           </button>
-//           <button 
-//             className={`shop-tab ${activeTab === 'orders' ? 'active' : ''}`}
-//             onClick={() => setActiveTab('orders')}
-//           >
-//             Orders
-//           </button>
-//           <button 
-//             className={`shop-tab ${activeTab === 'performance' ? 'active' : ''}`}
-//             onClick={() => setActiveTab('performance')}
-//           >
-//             Performance
-//           </button>
-//           <button 
-//             className={`shop-tab ${activeTab === 'products' ? 'active' : ''}`}
-//             onClick={() => setActiveTab('products')}
-//           >
-//             Products
-//           </button>
-//           <button 
-//             className={`shop-tab ${activeTab === 'earnings' ? 'active' : ''}`}
-//             onClick={() => setActiveTab('earnings')}
-//           >
-//             Earnings
-//           </button>
-//           <button 
-//             className={`shop-tab ${activeTab === 'settings' ? 'active' : ''}`}
-//             onClick={() => setActiveTab('settings')}
-//           >
-//             Settings
-//           </button>
-//         </div>
-        
-//         {activeTab === 'overview' && (
-//           <div className="shop-detail-content">
-//             <div className="shop-overview-grid">
-//               <div className="shop-detail-card shop-info">
-//                 <h2>Shop Information</h2>
-//                 <div className="shop-info-grid">
-//                   <div className="info-item">
-//                     <span className="info-label">Category</span>
-//                     <span className="info-value">{shop.category}</span>
-//                   </div>
-//                   <div className="info-item">
-//                     <span className="info-label">Rating</span>
-//                     <span className="info-value">
-//                       {shop.rating} <Star size={14} className="star-icon" />
-//                       <span className="reviews-count">({shop.reviews} reviews)</span>
-//                     </span>
-//                   </div>
-//                   <div className="info-item">
-//                     <span className="info-label">Address</span>
-//                     <span className="info-value">{shop.location.address}</span>
-//                   </div>
-//                   <div className="info-item">
-//                     <span className="info-label">Joined</span>
-//                     <span className="info-value">{new Date(shop.joinDate).toLocaleDateString()}</span>
-//                   </div>
-//                 </div>
-                
-//                 <div className="shop-actions">
-//                   <button className="shop-action-button">
-//                     <Map size={16} />
-//                     View on Map
-//                   </button>
-//                   <button className="shop-action-button">
-//                     <Settings size={16} />
-//                     Edit Info
-//                   </button>
-//                   <button className={`shop-status-toggle ${shop.status === 'active' ? 'deactivate' : 'activate'}`}>
-//                     {shop.status === 'active' ? 'Deactivate Shop' : 'Activate Shop'}
-//                   </button>
-//                 </div>
-//               </div>
-              
-//               <div className="shop-detail-card earnings-summary">
-//                 <h2>Earnings Summary</h2>
-//                 <div className="earnings-grid">
-//                   <div className="earnings-item">
-//                     <span className="earnings-label">Current Month</span>
-//                     <span className="earnings-value">{formatCurrency(shop.earnings.currentMonth)}</span>
-//                     <span className="earnings-change positive">
-//                       +{((shop.earnings.currentMonth - shop.earnings.previousMonth) / shop.earnings.previousMonth * 100).toFixed(1)}%
-//                     </span>
-//                   </div>
-//                   <div className="earnings-item">
-//                     <span className="earnings-label">Previous Month</span>
-//                     <span className="earnings-value">{formatCurrency(shop.earnings.previousMonth)}</span>
-//                   </div>
-//                   <div className="earnings-item total">
-//                     <span className="earnings-label">Total Earnings</span>
-//                     <span className="earnings-value">{formatCurrency(shop.earnings.total)}</span>
-//                   </div>
-//                 </div>
-                
-//                 <div className="view-more">
-//                   <button className="view-more-button" onClick={() => setActiveTab('earnings')}>
-//                     View Detailed Earnings
-//                     <ChevronRight size={16} />
-//                   </button>
-//                 </div>
-//               </div>
-              
-//               <div className="shop-detail-card orders-summary">
-//                 <h2>Orders Summary</h2>
-//                 <div className="orders-grid">
-//                   <div className="order-stat-item">
-//                     <div className="order-stat pending">
-//                       <Clock className="order-stat-icon" />
-//                       <span className="order-stat-value">{shop.orders.pending}</span>
-//                     </div>
-//                     <span className="order-stat-label">Pending</span>
-//                   </div>
-//                   <div className="order-stat-item">
-//                     <div className="order-stat processing">
-//                       <TrendingUp className="order-stat-icon" />
-//                       <span className="order-stat-value">{shop.orders.processing}</span>
-//                     </div>
-//                     <span className="order-stat-label">Processing</span>
-//                   </div>
-//                   <div className="order-stat-item">
-//                     <div className="order-stat completed">
-//                       <CheckCircle className="order-stat-icon" />
-//                       <span className="order-stat-value">{shop.orders.completed}</span>
-//                     </div>
-//                     <span className="order-stat-label">Completed</span>
-//                   </div>
-//                   <div className="order-stat-item">
-//                     <div className="order-stat cancelled">
-//                       <AlertTriangle className="order-stat-icon" />
-//                       <span className="order-stat-value">{shop.orders.cancelled}</span>
-//                     </div>
-//                     <span className="order-stat-label">Cancelled</span>
-//                   </div>
-//                 </div>
-                
-//                 <div className="view-more">
-//                   <button className="view-more-button" onClick={() => setActiveTab('orders')}>
-//                     View All Orders
-//                     <ChevronRight size={16} />
-//                   </button>
-//                 </div>
-//               </div>
-              
-//               <div className="shop-detail-card performance-metrics">
-//                 <h2>Performance Metrics</h2>
-//                 <div className={`performance-status ${getShopPerformanceStatus(shop.performanceMetrics)}`}>
-//                   {getShopPerformanceStatus(shop.performanceMetrics).charAt(0).toUpperCase() + getShopPerformanceStatus(shop.performanceMetrics).slice(1).replace('-', ' ')}
-//                 </div>
-                
-//                 <div className="metrics-list">
-//                   <div className="metric-item">
-//                     <span className="metric-label">Order Acceptance Rate</span>
-//                     <div className="metric-value-container">
-//                       <span className="metric-value">{shop.performanceMetrics.orderAcceptanceRate}%</span>
-//                       <div className="metric-bar-container">
-//                         <div 
-//                           className="metric-bar" 
-//                           style={{ width: `₹{shop.performanceMetrics.orderAcceptanceRate}%` }}
-//                         ></div>
-//                       </div>
-//                     </div>
-//                   </div>
-//                   <div className="metric-item">
-//                     <span className="metric-label">Avg. Preparation Time</span>
-//                     <div className="metric-value-container">
-//                       <span className="metric-value">{shop.performanceMetrics.preparationTime} mins</span>
-//                       <div className="metric-bar-container">
-//                         <div 
-//                           className="metric-bar" 
-//                           style={{ width: `₹{(shop.performanceMetrics.preparationTime / 30) * 100}%` }}
-//                         ></div>
-//                       </div>
-//                     </div>
-//                   </div>
-//                   <div className="metric-item">
-//                     <span className="metric-label">Customer Satisfaction</span>
-//                     <div className="metric-value-container">
-//                       <span className="metric-value">
-//                         {shop.performanceMetrics.customerSatisfaction}
-//                         <Star size={14} className="star-icon" />
-//                       </span>
-//                       <div className="metric-bar-container">
-//                         <div 
-//                           className="metric-bar" 
-//                           style={{ width: `₹{(shop.performanceMetrics.customerSatisfaction / 5) * 100}%` }}
-//                         ></div>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-                
-//                 <div className="view-more">
-//                   <button className="view-more-button" onClick={() => setActiveTab('performance')}>
-//                     View Detailed Performance
-//                     <ChevronRight size={16} />
-//                   </button>
-//                 </div>
-//               </div>
-              
-//               <div className="shop-detail-card top-products">
-//                 <h2>Top Products</h2>
-//                 <div className="products-list">
-//                   {shop.topProducts.map((product, index) => (
-//                     <div className="product-item" key={index}>
-//                       <div className="product-rank">{index + 1}</div>
-//                       <div className="product-info">
-//                         <span className="product-name">{product.name}</span>
-//                         <span className="product-sales">{product.sales} sold</span>
-//                       </div>
-//                       <span className="product-revenue">{formatCurrency(product.revenue)}</span>
-//                     </div>
-//                   ))}
-//                 </div>
-                
-//                 <div className="view-more">
-//                   <button className="view-more-button" onClick={() => setActiveTab('products')}>
-//                     View All Products
-//                     <ChevronRight size={16} />
-//                   </button>
-//                 </div>
-//               </div>
-              
-//               <div className="shop-detail-card recent-activity">
-//                 <h2>Recent Activity</h2>
-//                 <div className="activity-timeline">
-//                   {shop.recentActivity.map((activity, index) => (
-//                     <div className="activity-item" key={index}>
-//                       <div className={`activity-icon ${activity.type}`}></div>
-//                       <div className="activity-content">
-//                         <span className="activity-details">{activity.details}</span>
-//                         <span className="activity-time">{formatDate(activity.time)}</span>
-//                       </div>
-//                     </div>
-//                   ))}
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-        
-//         {activeTab === 'orders' && (
-//           <div className="shop-detail-content">
-//             <h2>Orders Management</h2>
-//             <p className="tab-placeholder">Orders management content would go here, showing all orders for {shop.name} with filtering options by status.</p>
-//           </div>
-//         )}
-        
-//         {activeTab === 'performance' && (
-//           <div className="shop-detail-content">
-//             <h2>Performance Analytics</h2>
-//             <p className="tab-placeholder">Detailed performance metrics and analytics would go here, showing trends over time for {shop.name}.</p>
-//           </div>
-//         )}
-        
-//         {activeTab === 'products' && (
-//           <div className="shop-detail-content">
-//             <h2>Products Management</h2>
-//             <p className="tab-placeholder">Product catalog management would go here, allowing you to view and edit all products for {shop.name}.</p>
-//           </div>
-//         )}
-        
-//         {activeTab === 'earnings' && (
-//           <div className="shop-detail-content">
-//             <h2>Earnings & Payouts</h2>
-//             <p className="tab-placeholder">Earnings history, payout records, and financial analytics would go here for {shop.name}.</p>
-//           </div>
-//         )}
-        
-//         {activeTab === 'settings' && (
-//           <div className="shop-detail-content">
-//             <h2>Shop Settings</h2>
-//             <p className="tab-placeholder">Shop settings and configuration options would go here for {shop.name}.</p>
-//           </div>
-//         )}
-//       </div>
-//     );
-//   }
-  
-//   // List view of all shops
-//   return (
-//     <div className="shop-partner-dashboard">
-//       <h1>Shop Partner Dashboard</h1>
-      
-//       <div className="dashboard-stats">
-//         <div className="stat-card">
-//           <div className="stat-icon">
-//             <Store />
-//           </div>
-//           <div className="stat-content">
-//             <span className="stat-value">{shops.length}</span>
-//             <span className="stat-label">Total Shops</span>
-//           </div>
-//         </div>
-//         <div className="stat-card">
-//           <div className="stat-icon">
-//             <Store />
-//           </div>
-//           <div className="stat-content">
-//             <span className="stat-value">{shops.filter(shop => shop.status === 'active').length}</span>
-//             <span className="stat-label">Active Shops</span>
-//           </div>
-//         </div>
-//         <div className="stat-card">
-//           <div className="stat-icon">
-//             <Package />
-//           </div>
-//           <div className="stat-content">
-//             <span className="stat-value">
-//               {shops.reduce((total, shop) => total + 
-//                 (shop.orders.pending + shop.orders.processing + shop.orders.completed + shop.orders.cancelled), 0)}
-//             </span>
-//             <span className="stat-label">Total Orders</span>
-//           </div>
-//         </div>
-//         <div className="stat-card">
-//           <div className="stat-icon">
-//             <DollarSign />
-//           </div>
-//           <div className="stat-content">
-//             <span className="stat-value">
-//               {formatCurrency(shops.reduce((total, shop) => total + shop.earnings.total, 0))}
-//             </span>
-//             <span className="stat-label">Total Revenue</span>
-//           </div>
-//         </div>
-//       </div>
-      
-//       <div className="shops-container">
-//         <div className="shops-header">
-//           <h2>All Shop Partners</h2>
-//           <button className="add-shop-button">+ Add New Shop</button>
-//         </div>
-        
-//         <div className="shops-grid">
-//           {shops.map(shop => (
-//             <div className={`shop-card ${shop.status}`} key={shop.id}>
-//               <div className="shop-card-header">
-//                 <h3 className="shop-name">{shop.name}</h3>
-//                 <div className={`shop-status ${shop.status}`}>
-//                   {shop.status === 'active' ? 'Active' : 'Inactive'}
-//                 </div>
-//               </div>
-              
-//               <div className="shop-card-content">
-//                 <div className="shop-rating">
-//                   <Star className="rating-star" />
-//                   <span className="rating-value">{shop.rating}</span>
-//                   <span className="reviews-count">({shop.reviews} reviews)</span>
-//                 </div>
-                
-//                 <div className="shop-location">
-//                   <Map className="location-icon" />
-//                   <span>{shop.location.address}</span>
-//                 </div>
-                
-//                 <div className="shop-category">
-//                   <span className="category-tag">{shop.category}</span>
-//                 </div>
-                
-//                 <div className="shop-metrics">
-//                   <div className="metric">
-//                     <span className="metric-label">Orders</span>
-//                     <span className="metric-value">
-//                       {shop.orders.pending + shop.orders.processing + shop.orders.completed + shop.orders.cancelled}
-//                     </span>
-//                   </div>
-//                   <div className="metric">
-//                     <span className="metric-label">Earnings</span>
-//                     <span className="metric-value">{formatCurrency(shop.earnings.currentMonth)}</span>
-//                   </div>
-//                   <div className="metric">
-//                     <span className="metric-label">Performance</span>
-//                     <span className={`performance-indicator ${getShopPerformanceStatus(shop.performanceMetrics)}`}>
-//                       {getShopPerformanceStatus(shop.performanceMetrics).charAt(0).toUpperCase() + getShopPerformanceStatus(shop.performanceMetrics).slice(1).replace('-', ' ')}
-//                     </span>
-//                   </div>
-//                 </div>
-//               </div>
-              
-//               <div className="shop-card-footer">
-//                 <button 
-//                   className="view-shop-button"
-//                   onClick={() => setSelectedShop(shop.id)}
-//                 >
-//                   View Details
-//                   <ChevronRight size={16} />
-//                 </button>
-                
-//                 <button className={`shop-toggle-button ${shop.status === 'active' ? 'deactivate' : 'activate'}`}>
-//                   {shop.status === 'active' ? 'Deactivate' : 'Activate'}
-//                 </button>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ShopPartnerDashboard;
-import React, { useState} from 'react';
-import { 
-  Store, 
-  Map, 
-  Star, 
-  Package, 
-  DollarSign, 
-  TrendingUp, 
+import React, { useState, useEffect } from 'react';
+import {
+  Package,
+  Store,
+  Map,
+  Star,
+  DollarSign,
+  TrendingUp,
   ChevronRight,
   Settings,
   Clock,
   CheckCircle,
   AlertTriangle,
   UserPlus,
- 
   RefreshCw,
-
-  X
+  X,
+  Plus,
+  Phone,
+  User,
+  FileText,
+  Home,
+  Upload,
+  Check,
+  Edit,
+  Trash,
+  Eye,
+  Mail,
+  Filter,
 } from 'lucide-react';
-// Importing the CSS is assumed
+import { ref, onValue, update, remove, push, set, get } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase/config';
 import '../styles/ShopPartnerDashboard.css';
+
+// EditShopModal component
+const EditShopModal = ({
+  isOpen,
+  onClose,
+  editShopForm,
+  handleInputChange,
+  handleUpdateShop,
+  shopCategories,
+  fetchGoogleRating,
+  isRatingLoading,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-container">
+        <div className="modal-header">
+          <h2>Edit Shop</h2>
+          <button className="modal-close" onClick={onClose}>
+            <X size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleUpdateShop} className="add-shop-form">
+          <div className="form-section">
+            <h3>Shop Information</h3>
+
+            <div className="form-group">
+              <label htmlFor="edit-name">Shop Name*</label>
+              <input
+                type="text"
+                id="edit-name"
+                name="name"
+                value={editShopForm.name}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter shop name"
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="edit-address">Shop Address*</label>
+                <input
+                  type="text"
+                  id="edit-address"
+                  name="address"
+                  value={editShopForm.address}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter full address"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-city">City*</label>
+                <input
+                  type="text"
+                  id="edit-city"
+                  name="city"
+                  value={editShopForm.city}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter city"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="edit-category">Category*</label>
+                <select
+                  id="edit-category"
+                  name="category"
+                  value={editShopForm.category}
+                  onChange={handleInputChange}
+                  required
+                >
+                  {shopCategories.map((category, index) => (
+                    <option key={index} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Rating</label>
+                <div className="rating-fetch-container">
+                  <div className="rating-display">
+                    {editShopForm.rating ? (
+                      <span className="rating-value">
+                        {editShopForm.rating} <Star size={14} className="star-icon" />
+                        <span className="reviews-count">({editShopForm.reviews} reviews)</span>
+                      </span>
+                    ) : (
+                      <span className="no-rating">Not fetched yet</span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="fetch-rating-button"
+                    onClick={() => fetchGoogleRating(editShopForm, 'edit')}
+                    disabled={isRatingLoading}
+                  >
+                    {isRatingLoading ? (
+                      <RefreshCw size={16} className="spinning" />
+                    ) : (
+                      <>
+                        <RefreshCw size={16} />
+                        Fetch from Google
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="form-section">
+              <h3>Meat Sector Type</h3>
+              <div className="meat-sector-options">
+                <div className="form-radio-group">
+                  <input
+                    type="radio"
+                    id="edit-halal"
+                    name="meatSectorType"
+                    value="Halal"
+                    checked={editShopForm.meatSectorType === 'Halal'}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="edit-halal">Halal Cut</label>
+                </div>
+                <div className="form-radio-group">
+                  <input
+                    type="radio"
+                    id="edit-jcjatka"
+                    name="meatSectorType"
+                    value="JC Jatka"
+                    checked={editShopForm.meatSectorType === 'JC Jatka'}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="edit-jcjatka">JC Jatka</label>
+                </div>
+                <div className="form-radio-group">
+                  <input
+                    type="radio"
+                    id="edit-none"
+                    name="meatSectorType"
+                    value="None"
+                    checked={editShopForm.meatSectorType === 'None'}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="edit-none">Not Applicable</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h3>Owner Information</h3>
+
+            <div className="form-group">
+              <label htmlFor="edit-owner">Shop Owner*</label>
+              <input
+                type="text"
+                id="edit-owner"
+                name="owner"
+                value={editShopForm.owner}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter owner name"
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="edit-phone">Phone Number*</label>
+                <input
+                  type="tel"
+                  id="edit-phone"
+                  name="phone"
+                  value={editShopForm.phone}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter phone number"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit-email">Email*</label>
+                <input
+                  type="email"
+                  id="edit-email"
+                  name="email"
+                  value={editShopForm.email}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter email address"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="edit-gstNumber">GST Number</label>
+              <input
+                type="text"
+                id="edit-gstNumber"
+                name="gstNumber"
+                value={editShopForm.gstNumber}
+                onChange={handleInputChange}
+                placeholder="Enter GST number (optional)"
+              />
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <button type="button" className="cancel-button" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="update-button">
+              Update Shop
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// AddShopModal component
+const AddShopModal = ({
+  isOpen,
+  onClose,
+  newShopForm,
+  handleInputChange,
+  handleFileUpload,
+  handleSubmitShop,
+  documentUploads,
+  documentPreviews,
+  fetchGoogleRating,
+  isRatingLoading,
+  shopCategories,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-container">
+        <div className="modal-header">
+          <h2>Add New Shop</h2>
+          <button className="modal-close" onClick={onClose}>
+            <X size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmitShop} className="add-shop-form">
+          <div className="form-section">
+            <h3>Shop Information</h3>
+
+            <div className="form-group">
+              <label htmlFor="name">Shop Name*</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={newShopForm.name}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter shop name"
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="address">Shop Address*</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={newShopForm.address}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter full address"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="city">City*</label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  value={newShopForm.city}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter city"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="category">Category*</label>
+                <select
+                  id="category"
+                  name="category"
+                  value={newShopForm.category}
+                  onChange={handleInputChange}
+                  required
+                >
+                  {shopCategories.map((category, index) => (
+                    <option key={index} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Rating</label>
+                <div className="rating-fetch-container">
+                  <div className="rating-display">
+                    {newShopForm.rating ? (
+                      <span className="rating-value">
+                        {newShopForm.rating} <Star size={14} className="star-icon" />
+                        <span className="reviews-count">({newShopForm.reviews} reviews)</span>
+                      </span>
+                    ) : (
+                      <span className="no-rating">Not fetched yet</span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="fetch-rating-button"
+                    onClick={() => fetchGoogleRating(newShopForm, 'add')}
+                    disabled={isRatingLoading}
+                  >
+                    {isRatingLoading ? (
+                      <RefreshCw size={16} className="spinning" />
+                    ) : (
+                      <>
+                        <RefreshCw size={16} />
+                        Fetch from Google
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="form-section">
+              <h3>Meat Sector Type</h3>
+              <div className="meat-sector-options">
+                <div className="form-radio-group">
+                  <input
+                    type="radio"
+                    id="halal"
+                    name="meatSectorType"
+                    value="Halal"
+                    checked={newShopForm.meatSectorType === 'Halal'}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="halal">Halal Cut</label>
+                </div>
+                <div className="form-radio-group">
+                  <input
+                    type="radio"
+                    id="jcjatka"
+                    name="meatSectorType"
+                    value="JC Jatka"
+                    checked={newShopForm.meatSectorType === 'JC Jatka'}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="jcjatka">JC Jatka</label>
+                </div>
+                <div className="form-radio-group">
+                  <input
+                    type="radio"
+                    id="none"
+                    name="meatSectorType"
+                    value="None"
+                    checked={newShopForm.meatSectorType === 'None'}
+                    onChange={handleInputChange}
+                  />
+                  <label htmlFor="none">Not Applicable</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h3>Owner Information</h3>
+
+            <div className="form-group">
+              <label htmlFor="owner">Shop Owner*</label>
+              <input
+                type="text"
+                id="owner"
+                name="owner"
+                value={newShopForm.owner}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter owner name"
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="phone">Phone Number*</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={newShopForm.phone}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter phone number"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email*</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={newShopForm.email}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter email address"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="gstNumber">GST Number</label>
+              <input
+                type="text"
+                id="gstNumber"
+                name="gstNumber"
+                value={newShopForm.gstNumber}
+                onChange={handleInputChange}
+                placeholder="Enter GST number (optional)"
+              />
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h3>Document Upload</h3>
+
+            <div className="form-row document-row">
+              <div className="form-group">
+                <label>Business License</label>
+                <div className="document-upload-container">
+                  <div className="document-upload">
+                    <input
+                      type="file"
+                      id="businessLicense"
+                      name="businessLicense"
+                      onChange={(e) => handleFileUpload(e, 'businessLicense')}
+                      accept="image/*"
+                      className="file-input"
+                    />
+                    <label htmlFor="businessLicense" className="file-label">
+                      <Upload size={16} />
+                      {documentUploads.businessLicense ? 'Change File' : 'Choose File'}
+                    </label>
+                    <span className="file-name">
+                      {documentUploads.businessLicense
+                        ? documentUploads.businessLicense.name
+                        : 'No file chosen'}
+                    </span>
+                  </div>
+
+                  {documentPreviews.businessLicense && (
+                    <div className="document-preview">
+                      <img src={documentPreviews.businessLicense} alt="Business License Preview" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>ID Proof</label>
+                <div className="document-upload-container">
+                  <div className="document-upload">
+                    <input
+                      type="file"
+                      id="idProof"
+                      name="idProof"
+                      onChange={(e) => handleFileUpload(e, 'idProof')}
+                      accept="image/*"
+                      className="file-input"
+                    />
+                    <label htmlFor="idProof" className="file-label">
+                      <Upload size={16} />
+                      {documentUploads.idProof ? 'Change File' : 'Choose File'}
+                    </label>
+                    <span className="file-name">
+                      {documentUploads.idProof ? documentUploads.idProof.name : 'No file chosen'}
+                    </span>
+                  </div>
+
+                  {documentPreviews.idProof && (
+                    <div className="document-preview">
+                      <img src={documentPreviews.idProof} alt="ID Proof Preview" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <button type="button" className="cancel-button" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="submit-button">
+              Add Shop
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 const ShopPartnerDashboard = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState('overview');
-  
+
   // State for selected shop
   const [selectedShop, setSelectedShop] = useState(null);
-  
-  // State for vendors
+
+  // State for filter options
+  const [meatSectorFilter, setMeatSectorFilter] = useState('All');
+
+  // State for vendors (keeping existing implementation)
   const [vendors, setVendors] = useState([
-    { id: 'V001', name: 'Rahul Singh', rating: 4.8, specialty: 'Grocery', available: true, orders: 245 },
+    { id: 'V001', name: 'Rah TCMul Singh', rating: 4.8, specialty: 'Grocery', available: true, orders: 245 },
     { id: 'V002', name: 'Priya Sharma', rating: 4.6, specialty: 'Restaurant', available: true, orders: 189 },
     { id: 'V003', name: 'Amit Kumar', rating: 4.7, specialty: 'Health Foods', available: false, orders: 156 },
     { id: 'V004', name: 'Deepika Patel', rating: 4.5, specialty: 'Grocery', available: true, orders: 132 },
-    { id: 'V005', name: 'Vikram Malhotra', rating: 4.9, specialty: 'Restaurant', available: true, orders: 201 }
+    { id: 'V005', name: 'Vikram Malhotra', rating: 4.9, specialty: 'Restaurant', available: true, orders: 201 },
   ]);
-  
+
   // State for notification
   const [notification, setNotification] = useState(null);
-  
+
   // State for loading
   const [isLoading, setIsLoading] = useState(false);
+
+  // State for shops
+  const [shops, setShops] = useState([]);
   
-  // Mock data for shops with additional order details
-  const [shops, setShops] = useState([
-    {
-      id: 'S001',
-      name: 'Fresh Foods Market',
-      location: { address: '230 Broadway, New Delhi, India', lat: 28.6139, lng: 77.2090 },
-      rating: 4.8,
-      reviews: 256,
-      category: 'Grocery',
-      joinDate: '2024-07-15',
-      status: 'active',
-      earnings: {
-        currentMonth: 12580.45,
-        previousMonth: 11250.30,
-        total: 58945.75
-      },
-      orders: {
-        pending: 3,
-        processing: 5,
-        completed: 89,
-        cancelled: 2
-      },
-      ordersList: [
-        { id: 'ORD1001', customer: 'Akash Gupta', amount: 750.50, status: 'pending', items: 3, time: '2025-04-22T10:15:00', assignedVendor: null },
-        { id: 'ORD1002', customer: 'Neha Reddy', amount: 1250.75, status: 'processing', items: 5, time: '2025-04-22T09:30:00', assignedVendor: 'V001' },
-        { id: 'ORD1003', customer: 'Raj Malhotra', amount: 450.25, status: 'pending', items: 2, time: '2025-04-22T08:45:00', assignedVendor: null },
-        { id: 'ORD1004', customer: 'Sunita Verma', amount: 2100.00, status: 'processing', items: 7, time: '2025-04-21T18:20:00', assignedVendor: 'V004' }
-      ],
-      performanceMetrics: {
-        orderAcceptanceRate: 98.5,
-        preparationTime: 12.4, // minutes
-        customerSatisfaction: 4.7
-      },
-      topProducts: [
-        { name: 'Organic Apples', sales: 154, revenue: 769.46 },
-        { name: 'Free Range Eggs', sales: 128, revenue: 639.72 },
-        { name: 'Artisan Bread', sales: 98, revenue: 392.02 }
-      ],
-      recentActivity: [
-        { type: 'order_received', time: '2025-04-18T14:30:00', details: 'New order #12345 received' },
-        { type: 'order_completed', time: '2025-04-18T13:15:00', details: 'Order #12343 marked as completed' },
-        { type: 'review_received', time: '2025-04-18T11:22:00', details: 'New 5-star review received' },
-        { type: 'payout_processed', time: '2025-04-17T09:00:00', details: 'Weekly payout of ₹2,450.78 processed' }
-      ]
-    },
-    {
-      id: 'S002',
-      name: 'Urban Eats',
-      location: { address: '500 Park Ave, Mumbai, India', lat: 19.0760, lng: 72.8777 },
-      rating: 4.6,
-      reviews: 189,
-      category: 'Restaurant',
-      joinDate: '2024-08-22',
-      status: 'active',
-      earnings: {
-        currentMonth: 9875.20,
-        previousMonth: 8950.10,
-        total: 42680.35
-      },
-      orders: {
-        pending: 2,
-        processing: 4,
-        completed: 72,
-        cancelled: 1
-      },
-      ordersList: [
-        { id: 'ORD2001', customer: 'Vikram Shah', amount: 950.00, status: 'pending', items: 2, time: '2025-04-22T11:05:00', assignedVendor: null },
-        { id: 'ORD2002', customer: 'Aarti Joshi', amount: 1450.50, status: 'processing', items: 3, time: '2025-04-22T10:20:00', assignedVendor: 'V002' },
-        { id: 'ORD2003', customer: 'Sanjeev Kumar', amount: 850.25, status: 'processing', items: 2, time: '2025-04-21T19:15:00', assignedVendor: 'V005' }
-      ],
-      performanceMetrics: {
-        orderAcceptanceRate: 97.2,
-        preparationTime: 18.7, // minutes
-        customerSatisfaction: 4.5
-      },
-      topProducts: [
-        { name: 'Artisan Pizza', sales: 112, revenue: 1679.88 },
-        { name: 'Caesar Salad', sales: 87, revenue: 782.13 },
-        { name: 'Grilled Chicken Sandwich', sales: 76, revenue: 683.24 }
-      ],
-      recentActivity: [
-        { type: 'order_received', time: '2025-04-18T15:10:00', details: 'New order #12347 received' },
-        { type: 'order_completed', time: '2025-04-18T14:05:00', details: 'Order #12342 marked as completed' },
-        { type: 'issue_reported', time: '2025-04-18T12:30:00', details: 'Customer reported missing items in order #12340' },
-        { type: 'payout_processed', time: '2025-04-17T09:00:00', details: 'Weekly payout of ₹1,875.45 processed' }
-      ]
-    },
-    {
-      id: 'S003',
-      name: 'Health & Wellness Market',
-      location: { address: '350 Madison Ave, Bangalore, India', lat: 12.9716, lng: 77.5946 },
-      rating: 4.5,
-      reviews: 128,
-      category: 'Health Foods',
-      joinDate: '2024-09-05',
-      status: 'inactive',
-      earnings: {
-        currentMonth: 5240.30,
-        previousMonth: 6120.85,
-        total: 28450.60
-      },
-      orders: {
-        pending: 0,
-        processing: 0,
-        completed: 65,
-        cancelled: 0
-      },
-      ordersList: [],
-      performanceMetrics: {
-        orderAcceptanceRate: 95.8,
-        preparationTime: 11.2, // minutes
-        customerSatisfaction: 4.4
-      },
-      topProducts: [
-        { name: 'Protein Smoothie', sales: 89, revenue: 534.00 },
-        { name: 'Organic Vitamins', sales: 67, revenue: 1005.00 },
-        { name: 'Vegan Protein Bars', sales: 58, revenue: 290.00 }
-      ],
-      recentActivity: [
-        { type: 'shop_deactivated', time: '2025-04-15T17:00:00', details: 'Shop temporarily deactivated due to inventory update' },
-        { type: 'order_completed', time: '2025-04-15T14:45:00', details: 'Order #12335 marked as completed' },
-        { type: 'inventory_updated', time: '2025-04-15T11:30:00', details: '25 new products added to inventory' },
-        { type: 'payout_processed', time: '2025-04-10T09:00:00', details: 'Weekly payout of ₹1,250.45 processed' }
-      ]
+  // State for filtered shops
+  const [filteredShops, setFilteredShops] = useState([]);
+
+  // State for add shop modal
+  const [isAddShopModalOpen, setIsAddShopModalOpen] = useState(false);
+
+  // State for edit shop modal
+  const [isEditShopModalOpen, setIsEditShopModalOpen] = useState(false);
+
+  // State for rating loading
+  const [isRatingLoading, setIsRatingLoading] = useState(false);
+
+  // State for new shop form
+  const [newShopForm, setNewShopForm] = useState({
+    name: '',
+    address: '',
+    city: '',
+    category: 'Grocery', // Default category
+    owner: '',
+    phone: '',
+    email: '',
+    gstNumber: '',
+    status: 'active',
+    meatSectorType: 'None', // Default meat sector type
+  });
+
+  // State for edit shop form
+  const [editShopForm, setEditShopForm] = useState({
+    id: '',
+    name: '',
+    address: '',
+    city: '',
+    category: '',
+    owner: '',
+    phone: '',
+    email: '',
+    gstNumber: '',
+    rating: 0,
+    reviews: 0,
+    meatSectorType: 'None',
+  });
+
+  // State for document uploads
+  const [documentUploads, setDocumentUploads] = useState({
+    businessLicense: null,
+    idProof: null,
+  });
+
+  // State for document preview URLs
+  const [documentPreviews, setDocumentPreviews] = useState({
+    businessLicense: null,
+    idProof: null,
+  });
+
+  // State for meat sector statistics
+  const [meatSectorStats, setMeatSectorStats] = useState({
+    Halal: 0,
+    'JC Jatka': 0,
+    None: 0,
+  });
+
+  // Categories for dropdown
+  const shopCategories = [
+    'Grocery',
+    'Restaurant',
+    'Pharmacy',
+    'Electronics',
+    'Clothing',
+    'Home Goods',
+    'Bakery',
+    'Pet Supplies',
+    'Books',
+    'Health Foods',
+    'Meat Shop',
+    'Other',
+  ];
+  
+  // Calculate meat sector statistics
+  useEffect(() => {
+    const stats = {
+      Halal: shops.filter(shop => shop.meatSectorType === 'Halal').length,
+      'JC Jatka': shops.filter(shop => shop.meatSectorType === 'JC Jatka').length,
+      None: shops.filter(shop => shop.meatSectorType === 'None' || !shop.meatSectorType).length,
+    };
+    
+    setMeatSectorStats(stats);
+  }, [shops]);
+  
+  // Apply filters to shops
+  useEffect(() => {
+    let result = [...shops];
+    
+    // Apply meat sector filter
+    if (meatSectorFilter !== 'All') {
+      result = result.filter(shop => 
+        meatSectorFilter === 'None' 
+          ? shop.meatSectorType === 'None' || !shop.meatSectorType
+          : shop.meatSectorType === meatSectorFilter
+      );
     }
-  ]);
+    
+    setFilteredShops(result);
+  }, [shops, meatSectorFilter]);
+
+  // Fetch shops from Firebase when component mounts
+  useEffect(() => {
+    const shopsRef = ref(db, 'shops');
+
+    // Set up real-time listener for shops
+    const unsubscribe = onValue(
+      shopsRef,
+      (snapshot) => {
+        const data = snapshot.val();
+
+        if (data) {
+          // Convert from object to array
+          const shopsArray = Object.keys(data).map((key) => ({
+            id: key,
+            ...data[key],
+            // Set default for shops without meat sector type
+            meatSectorType: data[key].meatSectorType || 'None',
+          }));
+
+          // Sort by name
+          shopsArray.sort((a, b) => a.name.localeCompare(b.name));
+
+          setShops(shopsArray);
+        } else {
+          setShops([]);
+        }
+
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error('Error fetching shops:', error);
+        setNotification({
+          message: `Error fetching shops: ${error.message}`,
+          type: 'error',
+        });
+
+        setTimeout(() => {
+          setNotification(null);
+        }, 3000);
+
+        setIsLoading(false);
+      }
+    );
+
+    // Cleanup listener on unmount
+    return () => unsubscribe();
+  }, []);
+
+  // Set up a listener for order status changes to update shop earnings
+  useEffect(() => {
+    const ordersRef = ref(db, 'orders');
+    
+    const handleOrderStatusChange = async (snapshot) => {
+      const ordersData = snapshot.val();
+      if (!ordersData) return;
+      
+      // Process each order
+      for (const [orderId, order] of Object.entries(ordersData)) {
+        // Check if the order was just delivered
+        if (order.status === 'delivered' && order.vendor && !order.earningsProcessed) {
+          // Find the vendor/shop ID from the order
+          const vendorId = order.vendor.id;
+          if (!vendorId) continue;
+          
+          await updateShopEarnings(vendorId, order);
+        }
+      }
+    };
+    
+    // Set up the listener
+    const unsubscribe = onValue(ordersRef, handleOrderStatusChange);
+    
+    // Cleanup on unmount
+    return () => unsubscribe();
+  }, []);
   
+  // Function to update shop earnings when an order is delivered
+  const updateShopEarnings = async (shopId, order) => {
+    try {
+      // Get current shop data
+      const shopRef = ref(db, `shops/${shopId}`);
+      const shopSnapshot = await get(shopRef);
+      const shopData = shopSnapshot.val();
+      
+      if (!shopData) {
+        console.error(`Shop with ID ${shopId} not found when updating earnings`);
+        return;
+      }
+      
+      // Calculate earnings (assume 10% commission or use the shop's commission rate)
+      const commissionRate = shopData.commissionRate || 10;
+      const orderEarnings = (order.totalAmount * (100 - commissionRate)) / 100;
+      
+      // Initialize earnings object if it doesn't exist
+      const earnings = shopData.earnings || {
+        currentMonth: 0,
+        previousMonth: 0,
+        total: 0
+      };
+      
+      // Update earnings
+      const updatedEarnings = {
+        currentMonth: (earnings.currentMonth || 0) + orderEarnings,
+        previousMonth: earnings.previousMonth || 0,
+        total: (earnings.total || 0) + orderEarnings
+      };
+      
+      // Update shop data in Firebase
+      await update(shopRef, {
+        earnings: updatedEarnings
+      });
+      
+      // Mark the order as earnings processed to avoid duplicate processing
+      const orderRef = ref(db, `orders/${order.id}`);
+      await update(orderRef, {
+        earningsProcessed: true
+      });
+      
+      console.log(`Earnings updated for shop ${shopId}. Added ${orderEarnings} from order ${order.id}`);
+    } catch (error) {
+      console.error('Error updating shop earnings:', error);
+    }
+  };
+
+  // Handle form input changes for new shop
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewShopForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  };
+
+  // Handle form input changes for edit shop
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditShopForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  };
+
+  // Handle document file uploads
+  const handleFileUpload = (e, documentType) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Store file for later upload
+    setDocumentUploads({
+      ...documentUploads,
+      [documentType]: file,
+    });
+
+    // Create preview URL
+    const previewURL = URL.createObjectURL(file);
+    setDocumentPreviews({
+      ...documentPreviews,
+      [documentType]: previewURL,
+    });
+  };
+
+  // Handle fetching Google ratings - works for both add and edit forms
+  const fetchGoogleRating = async (formData, formType) => {
+    const { name, address, city } = formData;
+
+    if (!name || !address || !city) {
+      setNotification({
+        message: 'Shop name, address, and city are required to fetch ratings',
+        type: 'error',
+      });
+
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      return;
+    }
+
+    setIsRatingLoading(true);
+
+    try {
+      // Construct the query for Google Places API
+      const query = `${name} ${address} ${city}`;
+      
+      // In a real implementation, you would call the Google Places API here
+      // For now, we'll simulate with a more realistic delay and data
+      
+      // Simulate API call with a more realistic approach
+      setTimeout(() => {
+        // Generate rating based on name length for consistency
+        const nameHash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const baseRating = 3.5 + (nameHash % 15) / 10; // Between 3.5 and 5.0
+        const rating = parseFloat(baseRating.toFixed(1));
+        
+        // Generate reviews count based on name length
+        const reviews = 10 + (nameHash % 190); // Between 10 and 200
+        
+        if (formType === 'add') {
+          setNewShopForm((prev) => ({
+            ...prev,
+            rating: rating,
+            reviews: reviews,
+          }));
+        } else {
+          setEditShopForm((prev) => ({
+            ...prev,
+            rating: rating,
+            reviews: reviews,
+          }));
+        }
+
+        setIsRatingLoading(false);
+
+        setNotification({
+          message: `Successfully fetched ratings: ${rating} from ${reviews} reviews`,
+          type: 'success',
+        });
+
+        setTimeout(() => {
+          setNotification(null);
+        }, 3000);
+      }, 1500);
+    } catch (error) {
+      console.error('Error fetching ratings:', error);
+      setIsRatingLoading(false);
+
+      setNotification({
+        message: `Failed to fetch ratings: ${error.message}`,
+        type: 'error',
+      });
+
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    }
+  };
+
+  // Handle form submission for adding a new shop
+  const handleSubmitShop = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Validate required fields
+      const requiredFields = ['name', 'address', 'city', 'category', 'owner', 'phone', 'email'];
+      const missingFields = requiredFields.filter((field) => !newShopForm[field]);
+
+      if (missingFields.length > 0) {
+        throw new Error(`Required fields missing: ${missingFields.join(', ')}`);
+      }
+
+      // Create a new shop object
+      const newShop = {
+        ...newShopForm,
+        location: {
+          address: `${newShopForm.address}, ${newShopForm.city}`,
+          city: newShopForm.city,
+        },
+        rating: newShopForm.rating || 0,
+        reviews: newShopForm.reviews || 0,
+        joinDate: new Date().toISOString(),
+        status: 'active',
+        verified: false,
+        earnings: {
+          currentMonth: 0,
+          previousMonth: 0,
+          total: 0,
+        },
+        orders: {
+          pending: 0,
+          processing: 0,
+          completed: 0,
+          cancelled: 0,
+        },
+        performanceMetrics: {
+          orderAcceptanceRate: 95,
+          preparationTime: 25,
+          customerSatisfaction: 4.5,
+        },
+      };
+
+      // Upload documents if any
+      const documents = {};
+
+      if (documentUploads.businessLicense) {
+        const businessLicenseRef = storageRef(storage, `shops/${Date.now()}_business_license`);
+        await uploadBytes(businessLicenseRef, documentUploads.businessLicense);
+        const businessLicenseUrl = await getDownloadURL(businessLicenseRef);
+        documents.businessLicense = businessLicenseUrl;
+      }
+
+      if (documentUploads.idProof) {
+        const idProofRef = storageRef(storage, `shops/${Date.now()}_id_proof`);
+        await uploadBytes(idProofRef, documentUploads.idProof);
+        const idProofUrl = await getDownloadURL(idProofRef);
+        documents.idProof = idProofUrl;
+      }
+
+      // Add documents to the shop data if any
+      if (Object.keys(documents).length > 0) {
+        newShop.documents = documents;
+      }
+
+      // Save to Firebase
+      const shopsRef = ref(db, 'shops');
+      const newShopRef = push(shopsRef);
+      await set(newShopRef, newShop);
+
+      // Reset form
+      setNewShopForm({
+        name: '',
+        address: '',
+        city: '',
+        category: 'Grocery',
+        owner: '',
+        phone: '',
+        email: '',
+        gstNumber: '',
+        status: 'active',
+        meatSectorType: 'None',
+      });
+
+      // Reset document uploads
+      setDocumentUploads({
+        businessLicense: null,
+        idProof: null,
+      });
+
+      // Reset document previews
+      setDocumentPreviews({
+        businessLicense: null,
+        idProof: null,
+      });
+
+      // Close modal
+      setIsAddShopModalOpen(false);
+
+      setIsLoading(false);
+
+      // Show success notification
+      setNotification({
+        message: `Shop ${newShop.name} has been added successfully`,
+        type: 'success',
+      });
+
+      // Auto dismiss notification after 3 seconds
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    } catch (error) {
+      console.error('Error adding shop:', error);
+      setIsLoading(false);
+
+      setNotification({
+        message: `Failed to add shop: ${error.message}`,
+        type: 'error',
+      });
+
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    }
+  };
+
+  // Function to handle opening the edit shop modal
+  const handleEditShop = (shop) => {
+    // Prepare address by splitting the full address
+    let address = '';
+    let city = shop.location?.city || '';
+    
+    if (shop.location?.address) {
+      const addressParts = shop.location.address.split(', ');
+      if (addressParts.length > 1) {
+        // Use everything except the last part as address
+        address = addressParts.slice(0, -1).join(', ');
+      } else {
+        address = shop.location.address;
+      }
+    }
+    
+    setEditShopForm({
+      id: shop.id,
+      name: shop.name || '',
+      address: address,
+      city: city,
+      category: shop.category || 'Grocery',
+      owner: shop.owner || '',
+      phone: shop.phone || '',
+      email: shop.email || '',
+      gstNumber: shop.gstNumber || '',
+      rating: shop.rating || 0,
+      reviews: shop.reviews || 0,
+      meatSectorType: shop.meatSectorType || 'None',
+    });
+    
+    setIsEditShopModalOpen(true);
+  };
+
+  // Function to handle updating a shop
+  const handleUpdateShop = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Validate required fields
+      const requiredFields = ['name', 'address', 'city', 'category', 'owner', 'phone', 'email'];
+      const missingFields = requiredFields.filter((field) => !editShopForm[field]);
+
+      if (missingFields.length > 0) {
+        throw new Error(`Required fields missing: ${missingFields.join(', ')}`);
+      }
+
+      // Create updated shop object
+      const updatedShop = {
+        name: editShopForm.name,
+        location: {
+          address: `${editShopForm.address}, ${editShopForm.city}`,
+          city: editShopForm.city,
+        },
+        category: editShopForm.category,
+        owner: editShopForm.owner,
+        phone: editShopForm.phone,
+        email: editShopForm.email,
+        gstNumber: editShopForm.gstNumber,
+        rating: editShopForm.rating,
+        reviews: editShopForm.reviews,
+        meatSectorType: editShopForm.meatSectorType,
+      };
+
+      // Update shop in Firebase
+      const shopRef = ref(db, `shops/${editShopForm.id}`);
+      await update(shopRef, updatedShop);
+
+      // Close modal
+      setIsEditShopModalOpen(false);
+      setIsLoading(false);
+
+      // Show success notification
+      setNotification({
+        message: `Shop ${updatedShop.name} has been updated successfully`,
+        type: 'success',
+      });
+
+      // Auto dismiss notification after 3 seconds
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    } catch (error) {
+      console.error('Error updating shop:', error);
+      setIsLoading(false);
+
+      setNotification({
+        message: `Failed to update shop: ${error.message}`,
+        type: 'error',
+      });
+
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    }
+  };
+
+  // Function to toggle shop status (activate/deactivate)
+  const toggleShopStatus = async (shopId, currentStatus) => {
+    setIsLoading(true);
+
+    try {
+      const shopRef = ref(db, `shops/${shopId}`);
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+      await update(shopRef, {
+        status: newStatus,
+        statusUpdatedAt: new Date().toISOString(),
+      });
+
+      setIsLoading(false);
+
+      // Show success notification
+      setNotification({
+        message: `Shop status has been ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`,
+        type: 'success',
+      });
+
+      // Auto dismiss notification after 3 seconds
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    } catch (error) {
+      console.error('Error toggling shop status:', error);
+      setIsLoading(false);
+
+      setNotification({
+        message: `Failed to update shop status: ${error.message}`,
+        type: 'error',
+      });
+
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    }
+  };
+
+  // Function to remove shop
+  const removeShop = async (shopId) => {
+    const confirmed = window.confirm('Are you sure you want to delete this shop? This action cannot be undone.');
+    if (!confirmed) return;
+
+    setIsLoading(true);
+
+    try {
+      const shopRef = ref(db, `shops/${shopId}`);
+      await remove(shopRef);
+
+      // If the deleted shop was selected, clear selection
+      if (selectedShop === shopId) {
+        setSelectedShop(null);
+      }
+
+      setIsLoading(false);
+
+      // Show success notification
+      setNotification({
+        message: `Shop has been removed successfully`,
+        type: 'success',
+      });
+
+      // Auto dismiss notification after 3 seconds
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    } catch (error) {
+      console.error('Error removing shop:', error);
+      setIsLoading(false);
+
+      setNotification({
+        message: `Failed to remove shop: ${error.message}`,
+        type: 'error',
+      });
+
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    }
+  };
+
+  // Function to update Google ratings (simulated)
+  const updateGoogleRatings = async (shopId) => {
+    setIsLoading(true);
+
+    try {
+      const shopRef = ref(db, `shops/${shopId}`);
+      
+      // Get the shop data first to determine a more consistent rating
+      const shopSnapshot = await get(shopRef);
+      const shopData = shopSnapshot.val();
+      
+      if (!shopData) {
+        throw new Error("Shop not found");
+      }
+      
+      // Generate rating based on name length for consistency
+      const nameHash = shopData.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const baseRating = 3.5 + (nameHash % 15) / 10; // Between 3.5 and 5.0
+      const rating = parseFloat(baseRating.toFixed(1));
+      
+      // Generate reviews count based on name length
+      const reviewsBase = shopData.reviews || 50;
+      const reviews = reviewsBase + Math.floor(Math.random() * 30) - 15; // Add or subtract up to 15 reviews
+
+      await update(shopRef, {
+        rating: rating,
+        reviews: reviews,
+        lastRatingUpdate: new Date().toISOString(),
+      });
+
+      setIsLoading(false);
+
+      // Show success notification
+      setNotification({
+        message: `Shop ratings have been updated from Google: ${rating} from ${reviews} reviews`,
+        type: 'success',
+      });
+
+      // Auto dismiss notification after 3 seconds
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    } catch (error) {
+      console.error('Error updating ratings:', error);
+      setIsLoading(false);
+
+      setNotification({
+        message: `Failed to update ratings: ${error.message}`,
+        type: 'error',
+      });
+
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+    }
+  };
+
   // Function to format currency with rupee symbol
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(amount);
   };
-  
+
   // Function to format date
   const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
+    if (!dateString) return 'N/A';
+
+    const options = {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
     };
     return new Date(dateString).toLocaleDateString('en-IN', options);
   };
-  
+
   // Function to get shop performance status
   const getShopPerformanceStatus = (metrics) => {
+    if (!metrics) return 'needs-improvement';
+
     if (metrics.orderAcceptanceRate > 95 && metrics.customerSatisfaction > 4.5) {
       return 'excellent';
     } else if (metrics.orderAcceptanceRate > 90 && metrics.customerSatisfaction > 4.0) {
@@ -798,167 +1327,32 @@ const ShopPartnerDashboard = () => {
       return 'needs-improvement';
     }
   };
-  
-  // Function to handle order cancellation with real-time updates
-  const handleCancelOrder = (shopId, orderId) => {
-    setIsLoading(true);
-    
-    // Simulate API call with timeout
-    setTimeout(() => {
-      setShops(prevShops => {
-        return prevShops.map(shop => {
-          if (shop.id === shopId) {
-            // Find the order and update its status
-            const updatedOrdersList = shop.ordersList.map(order => 
-              order.id === orderId ? { ...order, status: 'cancelled', assignedVendor: null } : order
-            );
-            
-            // Count orders by status in the updated list
-            const pendingCount = updatedOrdersList.filter(order => order.status === 'pending').length;
-            const processingCount = updatedOrdersList.filter(order => order.status === 'processing').length;
-            const completedCount = updatedOrdersList.filter(order => order.status === 'completed').length;
-            const cancelledCount = updatedOrdersList.filter(order => order.status === 'cancelled').length;
-            
-            // Return updated shop object
-            return {
-              ...shop,
-              ordersList: updatedOrdersList,
-              orders: {
-                pending: pendingCount,
-                processing: processingCount,
-                completed: completedCount,
-                cancelled: cancelledCount
-              },
-              recentActivity: [
-                {
-                  type: 'order_cancelled',
-                  time: new Date().toISOString(),
-                  details: `Order ${orderId} has been cancelled`
-                },
-                ...shop.recentActivity.slice(0, 3)
-              ]
-            };
-          }
-          return shop;
-        });
-      });
-      
-      // Show notification
-      setNotification({
-        message: `Order ${orderId} has been cancelled successfully`,
-        type: 'success'
-      });
-      
-      setIsLoading(false);
-      
-      // Auto dismiss notification after 3 seconds
-      setTimeout(() => {
-        setNotification(null);
-      }, 3000);
-    }, 800); // Simulate network delay
+
+  // Function to get meat sector label for display
+  const getMeatSectorLabel = (type) => {
+    switch(type) {
+      case 'Halal': return 'Halal Cut';
+      case 'JC Jatka': return 'JC Jatka';
+      default: return 'Not Applicable';
+    }
   };
-  
-  // Function to handle vendor assignment with real-time updates
-  const handleAssignVendor = (shopId, orderId, vendorId) => {
-    setIsLoading(true);
-    
-    // Simulate API call with timeout
-    setTimeout(() => {
-      setShops(prevShops => {
-        return prevShops.map(shop => {
-          if (shop.id === shopId) {
-            // Find the order and update its assigned vendor
-            const updatedOrdersList = shop.ordersList.map(order => 
-              order.id === orderId ? { ...order, assignedVendor: vendorId } : order
-            );
-            
-            // Return updated shop object with new activity
-            return {
-              ...shop,
-              ordersList: updatedOrdersList,
-              recentActivity: [
-                {
-                  type: 'vendor_assigned',
-                  time: new Date().toISOString(),
-                  details: `Vendor assigned to order ${orderId}`
-                },
-                ...shop.recentActivity.slice(0, 3)
-              ]
-            };
-          }
-          return shop;
-        });
-      });
-      
-      // Also update vendor availability
-      setVendors(prevVendors => {
-        return prevVendors.map(vendor => 
-          vendor.id === vendorId ? { ...vendor, available: false } : vendor
-        );
-      });
-      
-      // Show notification
-      setNotification({
-        message: `Vendor has been assigned to order ${orderId} successfully`,
-        type: 'success'
-      });
-      
-      setIsLoading(false);
-      
-      // Auto dismiss notification after 3 seconds
-      setTimeout(() => {
-        setNotification(null);
-      }, 3000);
-    }, 800); // Simulate network delay
-  };
-  
-  // Function to handle changing shop status
-  const handleToggleShopStatus = (shopId) => {
-    setIsLoading(true);
-    
-    // Simulate API call with timeout
-    setTimeout(() => {
-      setShops(prevShops => {
-        return prevShops.map(shop => {
-          if (shop.id === shopId) {
-            const newStatus = shop.status === 'active' ? 'inactive' : 'active';
-            
-            return {
-              ...shop,
-              status: newStatus,
-              recentActivity: [
-                {
-                  type: newStatus === 'active' ? 'shop_activated' : 'shop_deactivated',
-                  time: new Date().toISOString(),
-                  details: `Shop ${newStatus === 'active' ? 'activated' : 'deactivated'}`
-                },
-                ...shop.recentActivity.slice(0, 3)
-              ]
-            };
-          }
-          return shop;
-        });
-      });
-      
-      // Show notification
-      setNotification({
-        message: `Shop status updated successfully`,
-        type: 'success'
-      });
-      
-      setIsLoading(false);
-      
-      // Auto dismiss notification after 3 seconds
-      setTimeout(() => {
-        setNotification(null);
-      }, 3000);
-    }, 800); // Simulate network delay
-  };
-  
+
   // If a shop is selected, show detailed view
   if (selectedShop) {
-    const shop = shops.find(s => s.id === selectedShop);
-    
+    const shop = shops.find((s) => s.id === selectedShop);
+
+    // If shop not found after being deleted
+    if (!shop) {
+      return (
+        <div className="shop-partner-dashboard">
+          <button className="back-button" onClick={() => setSelectedShop(null)}>
+            ← Back to Shops
+          </button>
+          <p>Shop not found. It may have been deleted.</p>
+        </div>
+      );
+    }
+
     return (
       <div className="shop-partner-dashboard">
         {/* Notification Component */}
@@ -970,7 +1364,7 @@ const ShopPartnerDashboard = () => {
             </button>
           </div>
         )}
-        
+
         {/* Loading Overlay */}
         {isLoading && (
           <div className="loading-overlay">
@@ -979,62 +1373,74 @@ const ShopPartnerDashboard = () => {
             </div>
           </div>
         )}
-        
+
+        {/* Edit Shop Modal */}
+        <EditShopModal
+          isOpen={isEditShopModalOpen}
+          onClose={() => setIsEditShopModalOpen(false)}
+          editShopForm={editShopForm}
+          handleInputChange={handleEditInputChange}
+          handleUpdateShop={handleUpdateShop}
+          shopCategories={shopCategories}
+          fetchGoogleRating={fetchGoogleRating}
+          isRatingLoading={isRatingLoading}
+        />
+
         <div className="shop-detail-header">
           <button className="back-button" onClick={() => setSelectedShop(null)}>
-            &larr; Back to Shops
+            ← Back to Shops
           </button>
           <h1>{shop.name}</h1>
           <div className={`shop-status ${shop.status}`}>
-            {shop.status === 'active' ? 'Active' : 'Inactive'}
+            {shop.status === 'active' ? 'Active' : shop.status === 'pending' ? 'Pending' : 'Inactive'}
           </div>
         </div>
-        
+
         <div className="shop-tabs">
-          <button 
+          <button
             className={`shop-tab ${activeTab === 'overview' ? 'active' : ''}`}
             onClick={() => setActiveTab('overview')}
           >
             Overview
           </button>
-          <button 
+          <button
             className={`shop-tab ${activeTab === 'orders' ? 'active' : ''}`}
             onClick={() => setActiveTab('orders')}
           >
             Orders
           </button>
-          <button 
+          <button
             className={`shop-tab ${activeTab === 'vendors' ? 'active' : ''}`}
             onClick={() => setActiveTab('vendors')}
           >
             Vendors
           </button>
-          <button 
+          <button
             className={`shop-tab ${activeTab === 'performance' ? 'active' : ''}`}
             onClick={() => setActiveTab('performance')}
           >
             Performance
           </button>
-          <button 
+          <button
             className={`shop-tab ${activeTab === 'products' ? 'active' : ''}`}
             onClick={() => setActiveTab('products')}
           >
             Products
           </button>
-          <button 
+          <button
             className={`shop-tab ${activeTab === 'earnings' ? 'active' : ''}`}
             onClick={() => setActiveTab('earnings')}
           >
             Earnings
           </button>
-          <button 
+          <button
             className={`shop-tab ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
             Settings
           </button>
         </div>
-        
+
         {activeTab === 'overview' && (
           <div className="shop-detail-content">
             <div className="shop-overview-grid">
@@ -1046,6 +1452,10 @@ const ShopPartnerDashboard = () => {
                     <span className="info-value">{shop.category}</span>
                   </div>
                   <div className="info-item">
+                    <span className="info-label">Meat Sector Type</span>
+                    <span className="info-value">{getMeatSectorLabel(shop.meatSectorType)}</span>
+                  </div>
+                  <div className="info-item">
                     <span className="info-label">Rating</span>
                     <span className="info-value">
                       {shop.rating} <Star size={14} className="star-icon" />
@@ -1054,52 +1464,92 @@ const ShopPartnerDashboard = () => {
                   </div>
                   <div className="info-item">
                     <span className="info-label">Address</span>
-                    <span className="info-value">{shop.location.address}</span>
+                    <span className="info-value">{shop.location?.address}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Joined</span>
-                    <span className="info-value">{new Date(shop.joinDate).toLocaleDateString()}</span>
+                    <span className="info-value">{formatDate(shop.joinDate)}</span>
+                  </div>
+                  {shop.owner && (
+                    <div className="info-item">
+                      <span className="info-label">Owner</span>
+                      <span className="info-value">{shop.owner}</span>
+                    </div>
+                  )}
+                  {shop.phone && (
+                    <div className="info-item">
+                      <span className="info-label">Phone</span>
+                      <span className="info-value">{shop.phone}</span>
+                    </div>
+                  )}
+                  {shop.email && (
+                    <div className="info-item">
+                      <span className="info-label">Email</span>
+                      <span className="info-value">{shop.email}</span>
+                    </div>
+                  )}
+                  {shop.gstNumber && (
+                    <div className="info-item">
+                      <span className="info-label">GST</span>
+                      <span className="info-value">{shop.gstNumber}</span>
+                    </div>
+                  )}
+                  <div className="info-item">
+                    <span className="info-label">Commission</span>
+                    <span className="info-value">{shop.commissionRate || 10}%</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Verified</span>
+                    <span className="info-value">{shop.verified ? 'Yes' : 'No'}</span>
                   </div>
                 </div>
-                
+
                 <div className="shop-actions">
-                  <button className="shop-action-button">
-                    <Map size={16} />
-                    View on Map
-                  </button>
-                  <button className="shop-action-button">
-                    <Settings size={16} />
+                  <button className="shop-action-button" onClick={() => handleEditShop(shop)}>
+                    <Edit size={16} />
                     Edit Info
                   </button>
-                  <button 
+                  <button className="shop-action-button" onClick={() => updateGoogleRatings(shop.id)}>
+                    <RefreshCw size={16} />
+                    Update Ratings
+                  </button>
+                  <button
                     className={`shop-status-toggle ${shop.status === 'active' ? 'deactivate' : 'activate'}`}
-                    onClick={() => handleToggleShopStatus(shop.id)}
+                    onClick={() => toggleShopStatus(shop.id, shop.status)}
                   >
                     {shop.status === 'active' ? 'Deactivate Shop' : 'Activate Shop'}
                   </button>
                 </div>
               </div>
-              
+
               <div className="shop-detail-card earnings-summary">
                 <h2>Earnings Summary</h2>
                 <div className="earnings-grid">
                   <div className="earnings-item">
                     <span className="earnings-label">Current Month</span>
-                    <span className="earnings-value">{formatCurrency(shop.earnings.currentMonth)}</span>
-                    <span className="earnings-change positive">
-                      +{((shop.earnings.currentMonth - shop.earnings.previousMonth) / shop.earnings.previousMonth * 100).toFixed(1)}%
-                    </span>
+                    <span className="earnings-value">{formatCurrency(shop.earnings?.currentMonth || 0)}</span>
+                    {shop.earnings?.previousMonth > 0 && (
+                      <span className="earnings-change positive">
+                        +
+                        {(
+                          ((shop.earnings.currentMonth - shop.earnings.previousMonth) /
+                            shop.earnings.previousMonth) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </span>
+                    )}
                   </div>
                   <div className="earnings-item">
                     <span className="earnings-label">Previous Month</span>
-                    <span className="earnings-value">{formatCurrency(shop.earnings.previousMonth)}</span>
+                    <span className="earnings-value">{formatCurrency(shop.earnings?.previousMonth || 0)}</span>
                   </div>
                   <div className="earnings-item total">
                     <span className="earnings-label">Total Earnings</span>
-                    <span className="earnings-value">{formatCurrency(shop.earnings.total)}</span>
+                    <span className="earnings-value">{formatCurrency(shop.earnings?.total || 0)}</span>
                   </div>
                 </div>
-                
+
                 <div className="view-more">
                   <button className="view-more-button" onClick={() => setActiveTab('earnings')}>
                     View Detailed Earnings
@@ -1107,40 +1557,40 @@ const ShopPartnerDashboard = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="shop-detail-card orders-summary">
                 <h2>Orders Summary</h2>
                 <div className="orders-grid">
                   <div className="order-stat-item">
                     <div className="order-stat pending">
                       <Clock className="order-stat-icon" />
-                      <span className="order-stat-value">{shop.orders.pending}</span>
+                      <span className="order-stat-value">{shop.orders?.pending || 0}</span>
                     </div>
                     <span className="order-stat-label">Pending</span>
                   </div>
                   <div className="order-stat-item">
                     <div className="order-stat processing">
                       <TrendingUp className="order-stat-icon" />
-                      <span className="order-stat-value">{shop.orders.processing}</span>
+                      <span className="order-stat-value">{shop.orders?.processing || 0}</span>
                     </div>
                     <span className="order-stat-label">Processing</span>
                   </div>
                   <div className="order-stat-item">
                     <div className="order-stat completed">
                       <CheckCircle className="order-stat-icon" />
-                      <span className="order-stat-value">{shop.orders.completed}</span>
+                      <span className="order-stat-value">{shop.orders?.completed || 0}</span>
                     </div>
                     <span className="order-stat-label">Completed</span>
                   </div>
                   <div className="order-stat-item">
                     <div className="order-stat cancelled">
                       <AlertTriangle className="order-stat-icon" />
-                      <span className="order-stat-value">{shop.orders.cancelled}</span>
+                      <span className="order-stat-value">{shop.orders?.cancelled || 0}</span>
                     </div>
                     <span className="order-stat-label">Cancelled</span>
                   </div>
                 </div>
-                
+
                 <div className="view-more">
                   <button className="view-more-button" onClick={() => setActiveTab('orders')}>
                     View All Orders
@@ -1148,22 +1598,27 @@ const ShopPartnerDashboard = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="shop-detail-card performance-metrics">
                 <h2>Performance Metrics</h2>
                 <div className={`performance-status ${getShopPerformanceStatus(shop.performanceMetrics)}`}>
-                  {getShopPerformanceStatus(shop.performanceMetrics).charAt(0).toUpperCase() + getShopPerformanceStatus(shop.performanceMetrics).slice(1).replace('-', ' ')}
+                  {getShopPerformanceStatus(shop.performanceMetrics)
+                    .charAt(0)
+                    .toUpperCase() +
+                    getShopPerformanceStatus(shop.performanceMetrics)
+                      .slice(1)
+                      .replace('-', ' ')}
                 </div>
-                
+
                 <div className="metrics-list">
                   <div className="metric-item">
                     <span className="metric-label">Order Acceptance Rate</span>
                     <div className="metric-value-container">
-                      <span className="metric-value">{shop.performanceMetrics.orderAcceptanceRate}%</span>
+                      <span className="metric-value">{shop.performanceMetrics?.orderAcceptanceRate || 0}%</span>
                       <div className="metric-bar-container">
-                        <div 
-                          className="metric-bar" 
-                          style={{ width: `${shop.performanceMetrics.orderAcceptanceRate}%` }}
+                        <div
+                          className="metric-bar"
+                          style={{ width: `${shop.performanceMetrics?.orderAcceptanceRate || 0}%` }}
                         ></div>
                       </div>
                     </div>
@@ -1171,11 +1626,11 @@ const ShopPartnerDashboard = () => {
                   <div className="metric-item">
                     <span className="metric-label">Avg. Preparation Time</span>
                     <div className="metric-value-container">
-                      <span className="metric-value">{shop.performanceMetrics.preparationTime} mins</span>
+                      <span className="metric-value">{shop.performanceMetrics?.preparationTime || 0} mins</span>
                       <div className="metric-bar-container">
-                        <div 
-                          className="metric-bar" 
-                          style={{ width: `${(shop.performanceMetrics.preparationTime / 30) * 100}%` }}
+                        <div
+                          className="metric-bar"
+                          style={{ width: `${(shop.performanceMetrics?.preparationTime || 0) / 30 * 100}%` }}
                         ></div>
                       </div>
                     </div>
@@ -1184,19 +1639,21 @@ const ShopPartnerDashboard = () => {
                     <span className="metric-label">Customer Satisfaction</span>
                     <div className="metric-value-container">
                       <span className="metric-value">
-                        {shop.performanceMetrics.customerSatisfaction}
+                        {shop.performanceMetrics?.customerSatisfaction || 0}
                         <Star size={14} className="star-icon" />
                       </span>
                       <div className="metric-bar-container">
-                        <div 
-                          className="metric-bar" 
-                          style={{ width: `${(shop.performanceMetrics.customerSatisfaction / 5) * 100}%` }}
+                        <div
+                          className="metric-bar"
+                          style={{
+                            width: `${(shop.performanceMetrics?.customerSatisfaction || 0) / 5 * 100}%`,
+                          }}
                         ></div>
                       </div>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="view-more">
                   <button className="view-more-button" onClick={() => setActiveTab('performance')}>
                     View Detailed Performance
@@ -1204,371 +1661,151 @@ const ShopPartnerDashboard = () => {
                   </button>
                 </div>
               </div>
-              
-              <div className="shop-detail-card top-products">
-                <h2>Top Products</h2>
-                <div className="products-list">
-                  {shop.topProducts.map((product, index) => (
-                    <div className="product-item" key={index}>
-                      <div className="product-rank">{index + 1}</div>
-                      <div className="product-info">
-                        <span className="product-name">{product.name}</span>
-                        <span className="product-sales">{product.sales} sold</span>
+
+              {shop.topProducts && shop.topProducts.length > 0 && (
+                <div className="shop-detail-card top-products">
+                  <h2>Top Products</h2>
+                  <div className="products-list">
+                    {shop.topProducts.map((product, index) => (
+                      <div className="product-item" key={index}>
+                        <div className="product-rank">{index + 1}</div>
+                        <div className="product-info">
+                          <span className="product-name">{product.name}</span>
+                          <span className="product-sales">{product.sales} sold</span>
+                        </div>
+                        <span className="product-revenue">{formatCurrency(product.revenue)}</span>
                       </div>
-                      <span className="product-revenue">{formatCurrency(product.revenue)}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+
+                  <div className="view-more">
+                    <button className="view-more-button" onClick={() => setActiveTab('products')}>
+                      View All Products
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
                 </div>
-                
-                <div className="view-more">
-                  <button className="view-more-button" onClick={() => setActiveTab('products')}>
-                    View All Products
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="shop-detail-card recent-activity">
-                <h2>Recent Activity</h2>
-                <div className="activity-timeline">
-                  {shop.recentActivity.map((activity, index) => (
-                    <div className="activity-item" key={index}>
-                      <div className={`activity-icon ${activity.type}`}></div>
-                      <div className="activity-content">
-                        <span className="activity-details">{activity.details}</span>
-                        <span className="activity-time">{formatDate(activity.time)}</span>
+              )}
+
+              {shop.documents && (
+                <div className="shop-detail-card documents">
+                  <h2>Documents</h2>
+                  <div className="documents-list">
+                    {shop.documents.businessLicense && (
+                      <div className="document-item">
+                        <span className="document-name">Business License</span>
+                        <a
+                          href={shop.documents.businessLicense}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="document-link"
+                        >
+                          <Eye size={16} /> View
+                        </a>
                       </div>
-                    </div>
-                  ))}
+                    )}
+                    {shop.documents.idProof && (
+                      <div className="document-item">
+                        <span className="document-name">ID Proof</span>
+                        <a
+                          href={shop.documents.idProof}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="document-link"
+                        >
+                          <Eye size={16} /> View
+                        </a>
+                      </div>
+                    )}
+                    {shop.documents.addressProof && (
+                      <div className="document-item">
+                        <span className="document-name">Address Proof</span>
+                        <a
+                          href={shop.documents.addressProof}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="document-link"
+                        >
+                          <Eye size={16} /> View
+                        </a>
+                      </div>
+                    )}
+                    {shop.documents.gstCertificate && (
+                      <div className="document-item">
+                        <span className="document-name">GST Certificate</span>
+                        <a
+                          href={shop.documents.gstCertificate}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="document-link"
+                        >
+                          <Eye size={16} /> View
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
-        
+
         {activeTab === 'orders' && (
           <div className="shop-detail-content">
             <h2>Orders Management</h2>
-            <div className="orders-management">
-              <div className="orders-filters">
-                <div className="filter-group">
-                  <label>Status:</label>
-                  <select className="filter-select">
-                    <option value="all">All Orders</option>
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-                <div className="filter-group">
-                  <label>Date Range:</label>
-                  <select className="filter-select">
-                    <option value="today">Today</option>
-                    <option value="yesterday">Yesterday</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                  </select>
-                </div>
-                <button className="filter-button">
-                  <RefreshCw size={14} />
-                  Refresh
-                </button>
-              </div>
-              
-              <div className="orders-table-container">
-                <table className="orders-table">
-                  <thead>
-                    <tr>
-                      <th>Order ID</th>
-                      <th>Customer</th>
-                      <th>Amount</th>
-                      <th>Items</th>
-                      <th>Date & Time</th>
-                      <th>Status</th>
-                      <th>Vendor</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {shop.ordersList.map((order) => (
-                      <tr key={order.id} className={`order-row order-${order.status}`}>
-                        <td>{order.id}</td>
-                        <td>{order.customer}</td>
-                        <td>{formatCurrency(order.amount)}</td>
-                        <td>{order.items}</td>
-                        <td>{formatDate(order.time)}</td>
-                        <td>
-                          <span className={`order-status-badge ${order.status}`}>
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                          </span>
-                        </td>
-                        <td>
-                          {order.assignedVendor ? (
-                            <span className="vendor-assigned">
-                              {vendors.find(v => v.id === order.assignedVendor)?.name || 'Unknown'}
-                            </span>
-                          ) : (
-                            <span className="vendor-unassigned">Not Assigned</span>
-                          )}
-                        </td>
-                        <td className="order-actions">
-                          {order.status === 'pending' && (
-                            <>
-                              <button 
-                                className="assign-vendor-button" 
-                                onClick={() => setActiveTab('vendors')}
-                                title="Assign Vendor"
-                              >
-                                <UserPlus size={16} />
-                              </button>
-                              <button 
-                                className="cancel-order-button" 
-                                onClick={() => handleCancelOrder(shop.id, order.id)}
-                                title="Cancel Order"
-                              >
-                                <X size={16} />
-                              </button>
-                            </>
-                          )}
-                          {order.status === 'processing' && (
-                            <button 
-                              className="cancel-order-button" 
-                              onClick={() => handleCancelOrder(shop.id, order.id)}
-                              title="Cancel Order"
-                            >
-                              <X size={16} />
-                            </button>
-                          )}
-                          {(order.status === 'completed' || order.status === 'cancelled') && (
-                            <button className="view-details-button" title="View Details">
-                              <ChevronRight size={16} />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                    {shop.ordersList.length === 0 && (
-                      <tr>
-                        <td colSpan="8" className="no-orders">
-                          No orders found for this shop
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <p className="tab-placeholder">Orders management would go here, showing all orders for {shop.name}.</p>
           </div>
         )}
-        
+
         {activeTab === 'vendors' && (
           <div className="shop-detail-content">
             <h2>Vendor Assignment</h2>
-            <div className="vendors-management">
-              <div className="vendor-assignment-section">
-                <div className="pending-orders">
-                  <h3>Pending Orders</h3>
-                  {shop.ordersList.filter(order => order.status === 'pending' || order.status === 'processing').length > 0 ? (
-                    <div className="pending-orders-list">
-                      {shop.ordersList
-                        .filter(order => order.status === 'pending' || order.status === 'processing')
-                        .map(order => (
-                          <div className="pending-order-card" key={order.id}>
-                            <div className="order-header">
-                              <div className="order-id">{order.id}</div>
-                              <div className={`order-status ${order.status}`}>
-                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                              </div>
-                            </div>
-                            <div className="order-details">
-                              <div className="order-detail-item">
-                                <span className="detail-label">Customer:</span>
-                                <span className="detail-value">{order.customer}</span>
-                              </div>
-                              <div className="order-detail-item">
-                                <span className="detail-label">Amount:</span>
-                                <span className="detail-value">{formatCurrency(order.amount)}</span>
-                              </div>
-                              <div className="order-detail-item">
-                                <span className="detail-label">Items:</span>
-                                <span className="detail-value">{order.items}</span>
-                              </div>
-                              <div className="order-detail-item">
-                                <span className="detail-label">Time:</span>
-                                <span className="detail-value">{formatDate(order.time)}</span>
-                              </div>
-                            </div>
-                            <div className="order-vendor-assignment">
-                              <h4>Assign Vendor</h4>
-                              {order.assignedVendor ? (
-                                <div className="assigned-vendor">
-                                  <div className="vendor-info">
-                                    <span className="vendor-name">
-                                      {vendors.find(v => v.id === order.assignedVendor)?.name || 'Unknown'}
-                                    </span>
-                                    <span className="vendor-rating">
-                                      {vendors.find(v => v.id === order.assignedVendor)?.rating || '-'} <Star size={14} />
-                                    </span>
-                                  </div>
-                                  <button 
-                                    className="reassign-button"
-                                    onClick={() => handleAssignVendor(shop.id, order.id, null)}
-                                  >
-                                    Reassign
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="vendor-selection">
-                                  <div className="vendor-select-list">
-                                    {vendors
-                                      .filter(vendor => vendor.available && vendor.specialty === shop.category)
-                                      .map(vendor => (
-                                        <div className="vendor-select-item" key={vendor.id}>
-                                          <div className="vendor-select-info">
-                                            <span className="vendor-name">{vendor.name}</span>
-                                            <div className="vendor-meta">
-                                              <span className="vendor-rating">
-                                                {vendor.rating} <Star size={14} />
-                                              </span>
-                                              <span className="vendor-orders">
-                                                {vendor.orders} orders
-                                              </span>
-                                            </div>
-                                          </div>
-                                          <button 
-                                            className="assign-button"
-                                            onClick={() => handleAssignVendor(shop.id, order.id, vendor.id)}
-                                          >
-                                            Assign
-                                          </button>
-                                        </div>
-                                      ))}
-                                    {vendors.filter(vendor => vendor.available && vendor.specialty === shop.category).length === 0 && (
-                                      <div className="no-vendors">
-                                        No available vendors matching shop category.
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  ) : (
-                    <div className="no-pending-orders">
-                      No pending or processing orders to assign vendors to.
-                    </div>
-                  )}
-                </div>
-                
-                <div className="vendor-management">
-                  <h3>Available Vendors</h3>
-                  <div className="vendors-filter">
-                    <div className="filter-group">
-                      <label>Specialty:</label>
-                      <select className="filter-select">
-                        <option value="all">All Specialties</option>
-                        <option value="Grocery">Grocery</option>
-                        <option value="Restaurant">Restaurant</option>
-                        <option value="Health Foods">Health Foods</option>
-                      </select>
-                    </div>
-                    <div className="filter-group">
-                      <label>Availability:</label>
-                      <select className="filter-select">
-                        <option value="all">All</option>
-                        <option value="available">Available</option>
-                        <option value="busy">Busy</option>
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div className="vendors-list">
-                    {vendors.map(vendor => (
-                      <div className={`vendor-card ${vendor.available ? 'available' : 'busy'}`} key={vendor.id}>
-                        <div className="vendor-card-header">
-                          <h4 className="vendor-name">{vendor.name}</h4>
-                          <div className={`vendor-status ${vendor.available ? 'available' : 'busy'}`}>
-                            {vendor.available ? 'Available' : 'Busy'}
-                          </div>
-                        </div>
-                        <div className="vendor-card-content">
-                          <div className="vendor-info-item">
-                            <span className="info-label">Specialty</span>
-                            <span className="info-value">{vendor.specialty}</span>
-                          </div>
-                          <div className="vendor-info-item">
-                            <span className="info-label">Rating</span>
-                            <span className="info-value">
-                              {vendor.rating} <Star size={14} />
-                            </span>
-                          </div>
-                          <div className="vendor-info-item">
-                            <span className="info-label">Orders Completed</span>
-                            <span className="info-value">{vendor.orders}</span>
-                          </div>
-                        </div>
-                        <div className="vendor-card-footer">
-                          <button className="vendor-action-button">
-                            View Profile
-                          </button>
-                          {vendor.available ? (
-                            <div className="vendor-actions">
-                              <button 
-                                className="vendor-assign-button"
-                                disabled={shop.ordersList.filter(order => order.status === 'pending' && !order.assignedVendor).length === 0}
-                              >
-                                Assign to Order
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="vendor-busy-status">
-                              Currently on assignment
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <p className="tab-placeholder">Vendor assignment would go here for {shop.name}.</p>
           </div>
         )}
-        
+
         {activeTab === 'performance' && (
           <div className="shop-detail-content">
             <h2>Performance Analytics</h2>
-            <p className="tab-placeholder">Detailed performance metrics and analytics would go here, showing trends over time for {shop.name}.</p>
+            <p className="tab-placeholder">
+              Detailed performance metrics and analytics would go here, showing trends over time for {shop.name}.
+            </p>
           </div>
         )}
-        
+
         {activeTab === 'products' && (
           <div className="shop-detail-content">
             <h2>Products Management</h2>
-            <p className="tab-placeholder">Product catalog management would go here, allowing you to view and edit all products for {shop.name}.</p>
+            <p className="tab-placeholder">
+              Product catalog management would go here, allowing you to view and edit all products for {shop.name}.
+            </p>
           </div>
         )}
-        
+
         {activeTab === 'earnings' && (
           <div className="shop-detail-content">
             <h2>Earnings & Payouts</h2>
-            <p className="tab-placeholder">Earnings history, payout records, and financial analytics would go here for {shop.name}.</p>
+            <p className="tab-placeholder">
+              Earnings history, payout records, and financial analytics would go here for {shop.name}.
+            </p>
           </div>
         )}
-        
+
         {activeTab === 'settings' && (
           <div className="shop-detail-content">
             <h2>Shop Settings</h2>
-            <p className="tab-placeholder">Shop settings and configuration options would go here for {shop.name}.</p>
+            <div className="settings-actions">
+              <button className="delete-shop-button" onClick={() => removeShop(shop.id)}>
+                <Trash size={16} />
+                Delete Shop
+              </button>
+            </div>
           </div>
         )}
       </div>
     );
   }
-  
+
   // List view of all shops
   return (
     <div className="shop-partner-dashboard">
@@ -1581,7 +1818,7 @@ const ShopPartnerDashboard = () => {
           </button>
         </div>
       )}
-      
+
       {/* Loading Overlay */}
       {isLoading && (
         <div className="loading-overlay">
@@ -1590,9 +1827,36 @@ const ShopPartnerDashboard = () => {
           </div>
         </div>
       )}
-      
+
+      {/* Add Shop Modal */}
+      <AddShopModal
+        isOpen={isAddShopModalOpen}
+        onClose={() => setIsAddShopModalOpen(false)}
+        newShopForm={newShopForm}
+        handleInputChange={handleInputChange}
+        handleFileUpload={handleFileUpload}
+        handleSubmitShop={handleSubmitShop}
+        documentUploads={documentUploads}
+        documentPreviews={documentPreviews}
+        fetchGoogleRating={fetchGoogleRating}
+        isRatingLoading={isRatingLoading}
+        shopCategories={shopCategories}
+      />
+
+      {/* Edit Shop Modal */}
+      <EditShopModal
+        isOpen={isEditShopModalOpen}
+        onClose={() => setIsEditShopModalOpen(false)}
+        editShopForm={editShopForm}
+        handleInputChange={handleEditInputChange}
+        handleUpdateShop={handleUpdateShop}
+        shopCategories={shopCategories}
+        fetchGoogleRating={fetchGoogleRating}
+        isRatingLoading={isRatingLoading}
+      />
+
       <h1>Shop Partner Dashboard</h1>
-      
+
       <div className="dashboard-stats">
         <div className="stat-card">
           <div className="stat-icon">
@@ -1608,7 +1872,7 @@ const ShopPartnerDashboard = () => {
             <Store />
           </div>
           <div className="stat-content">
-            <span className="stat-value">{shops.filter(shop => shop.status === 'active').length}</span>
+            <span className="stat-value">{shops.filter((shop) => shop.status === 'active').length}</span>
             <span className="stat-label">Active Shops</span>
           </div>
         </div>
@@ -1618,8 +1882,15 @@ const ShopPartnerDashboard = () => {
           </div>
           <div className="stat-content">
             <span className="stat-value">
-              {shops.reduce((total, shop) => total + 
-                (shop.orders.pending + shop.orders.processing + shop.orders.completed + shop.orders.cancelled), 0)}
+              {shops.reduce(
+                (total, shop) =>
+                  total +
+                  ((shop.orders?.pending || 0) +
+                    (shop.orders?.processing || 0) +
+                    (shop.orders?.completed || 0) +
+                    (shop.orders?.cancelled || 0)),
+                0
+              )}
             </span>
             <span className="stat-label">Total Orders</span>
           </div>
@@ -1630,83 +1901,171 @@ const ShopPartnerDashboard = () => {
           </div>
           <div className="stat-content">
             <span className="stat-value">
-              {formatCurrency(shops.reduce((total, shop) => total + shop.earnings.total, 0))}
+              {formatCurrency(shops.reduce((total, shop) => total + (shop.earnings?.total || 0), 0))}
             </span>
             <span className="stat-label">Total Revenue</span>
           </div>
         </div>
       </div>
       
+      {/* Meat Sector Statistics */}
+      <div className="meat-sector-stats">
+        <h2>Meat Sector Statistics</h2>
+        <div className="meat-sector-counters">
+          <div className="meat-sector-counter halal">
+            <div className="counter-value">{meatSectorStats.Halal}</div>
+            <div className="counter-label">Halal Cut</div>
+          </div>
+          <div className="meat-sector-counter jc-jatka">
+            <div className="counter-value">{meatSectorStats['JC Jatka']}</div>
+            <div className="counter-label">JC Jatka</div>
+          </div>
+          <div className="meat-sector-counter none">
+            <div className="counter-value">{meatSectorStats.None}</div>
+            <div className="counter-label">Not Applicable</div>
+          </div>
+        </div>
+      </div>
+
       <div className="shops-container">
         <div className="shops-header">
           <h2>All Shop Partners</h2>
-          <button className="add-shop-button">+ Add New Shop</button>
-        </div>
-        
-        <div className="shops-grid">
-          {shops.map(shop => (
-            <div className={`shop-card ${shop.status}`} key={shop.id}>
-              <div className="shop-card-header">
-                <h3 className="shop-name">{shop.name}</h3>
-                <div className={`shop-status ${shop.status}`}>
-                  {shop.status === 'active' ? 'Active' : 'Inactive'}
-                </div>
-              </div>
-              
-              <div className="shop-card-content">
-                <div className="shop-rating">
-                  <Star className="rating-star" />
-                  <span className="rating-value">{shop.rating}</span>
-                  <span className="reviews-count">({shop.reviews} reviews)</span>
-                </div>
-                
-                <div className="shop-location">
-                  <Map className="location-icon" />
-                  <span>{shop.location.address}</span>
-                </div>
-                
-                <div className="shop-category">
-                  <span className="category-tag">{shop.category}</span>
-                </div>
-                
-                <div className="shop-metrics">
-                  <div className="metric">
-                    <span className="metric-label">Orders</span>
-                    <span className="metric-value">
-                      {shop.orders.pending + shop.orders.processing + shop.orders.completed + shop.orders.cancelled}
-                    </span>
-                  </div>
-                  <div className="metric">
-                    <span className="metric-label">Earnings</span>
-                    <span className="metric-value">{formatCurrency(shop.earnings.currentMonth)}</span>
-                  </div>
-                  <div className="metric">
-                    <span className="metric-label">Performance</span>
-                    <span className={`performance-indicator ${getShopPerformanceStatus(shop.performanceMetrics)}`}>
-                      {getShopPerformanceStatus(shop.performanceMetrics).charAt(0).toUpperCase() + getShopPerformanceStatus(shop.performanceMetrics).slice(1).replace('-', ' ')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="shop-card-footer">
-                <button 
-                  className="view-shop-button"
-                  onClick={() => setSelectedShop(shop.id)}
-                >
-                  View Details
-                  <ChevronRight size={16} />
-                </button>
-                
-                <button 
-                  className={`shop-toggle-button ${shop.status === 'active' ? 'deactivate' : 'activate'}`}
-                  onClick={() => handleToggleShopStatus(shop.id)}
-                >
-                  {shop.status === 'active' ? 'Deactivate' : 'Activate'}
-                </button>
-              </div>
+          <div className="shops-actions">
+            <div className="filter-container">
+              <Filter size={16} className="filter-icon" />
+              <select 
+                className="meat-sector-filter"
+                value={meatSectorFilter}
+                onChange={(e) => setMeatSectorFilter(e.target.value)}
+              >
+                <option value="All">All Meat Sectors</option>
+                <option value="Halal">Halal Cut</option>
+                <option value="JC Jatka">JC Jatka</option>
+                <option value="None">Not Applicable</option>
+              </select>
             </div>
-          ))}
+            <button className="add-shop-button" onClick={() => setIsAddShopModalOpen(true)}>
+              + Add New Shop
+            </button>
+          </div>
+        </div>
+
+        <div className="shops-table-container">
+          {filteredShops.length > 0 ? (
+            <table className="shops-table">
+              <thead>
+                <tr>
+                  <th>Shop Name</th>
+                  <th>Status</th>
+                  <th>Category</th>
+                  <th>Meat Sector</th>
+                  <th>Rating</th>
+                  <th>Location</th>
+                  <th>Orders</th>
+                  <th>Earnings</th>
+                  <th>Performance</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredShops.map((shop) => (
+                  <tr className={`shop-row ${shop.status}`} key={shop.id}>
+                    <td className="shop-name-cell">
+                      <span className="shop-name">{shop.name}</span>
+                    </td>
+                    <td>
+                      <div className={`shop-status ${shop.status}`}>
+                        {shop.status === 'active' ? 'Active' : shop.status === 'pending' ? 'Pending' : 'Inactive'}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="category-tag">{shop.category}</span>
+                    </td>
+                    <td>
+                      <span className={`meat-sector-tag ${shop.meatSectorType.toLowerCase().replace(' ', '-')}`}>
+                        {getMeatSectorLabel(shop.meatSectorType)}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="shop-rating">
+                        <Star className="rating-star" />
+                        <span className="rating-value">{shop.rating}</span>
+                        <span className="reviews-count">({shop.reviews} reviews)</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="shop-location">
+                        <Map className="location-icon" />
+                        <span>{shop.location?.address}</span>
+                      </div>
+                    </td>
+                    <td>
+                      {(shop.orders?.pending || 0) +
+                        (shop.orders?.processing || 0) +
+                        (shop.orders?.completed || 0) +
+                        (shop.orders?.cancelled || 0)}
+                    </td>
+                    <td>{formatCurrency(shop.earnings?.currentMonth || 0)}</td>
+                    <td>
+                      <span className={`performance-indicator ${getShopPerformanceStatus(shop.performanceMetrics)}`}>
+                        {getShopPerformanceStatus(shop.performanceMetrics)
+                          .charAt(0)
+                          .toUpperCase() +
+                          getShopPerformanceStatus(shop.performanceMetrics)
+                            .slice(1)
+                            .replace('-', ' ')}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="shop-table-actions">
+                        <button
+                          className="view-shop-button"
+                          onClick={() => setSelectedShop(shop.id)}
+                          title="View Details"
+                        >
+                          <Eye size={16} />
+                          <span>View</span>
+                        </button>
+                        <button className="edit-shop-button" onClick={() => handleEditShop(shop)} title="Edit Shop">
+                          <Edit size={16} />
+                          {/* <span>Edit</span> */}
+                        </button>
+                        <button
+                          className={`shop-toggle-button ${shop.status === 'active' ? 'deactivate' : 'activate'}`}
+                          onClick={() => toggleShopStatus(shop.id, shop.status)}
+                          title={shop.status === 'active' ? 'Deactivate Shop' : 'Activate Shop'}
+                        >
+                          {shop.status === 'active' ? (
+                            <>
+                              <X size={16} />
+                              <span>Deactivate</span>
+                            </>
+                          ) : (
+                            <>
+                              <Check size={16} />
+                              <span>Activate</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          className="remove-shop-button"
+                          onClick={() => removeShop(shop.id)}
+                          title="Remove Shop"
+                        >
+                          <Trash size={16} />
+                          {/* <span>Delete</span> */}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="no-shops-message">
+              <p>No shops found matching your criteria. Try changing the filter or add a new shop.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1714,3 +2073,4 @@ const ShopPartnerDashboard = () => {
 };
 
 export default ShopPartnerDashboard;
+

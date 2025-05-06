@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+
+
+import React, { useState, useEffect } from 'react';
 import { 
   DollarSign, 
   CreditCard, 
@@ -16,233 +18,323 @@ import {
   ArrowUp,
   ArrowDown,
   Store,
-  Settings
+  Settings,
+  ChevronRight
 } from 'lucide-react';
-import '../styles/PaymentCommission.css'; // Import your CSS file for styling
+import { ref, onValue } from 'firebase/database';
+import { db } from '../firebase/config';
+import '../styles/PaymentCommission.css';
 
 const PaymentCommission = () => {
-  // State for active tab
   const [activeTab, setActiveTab] = useState('transactions');
-  
-  // State for active transaction type filter
   const [transactionType, setTransactionType] = useState('all');
-  
-  // State for date range
   const [dateRange, setDateRange] = useState('this-month');
-  
-  // State for search term
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Mock data for transactions
-  const transactions = [
-    {
-      id: 'TRX-12345',
-      type: 'order_payment',
-      amount: 56.80,
-      commission: 5.68,
-      vendorPayout: 51.12,
-      date: '2025-04-17T14:00:00',
-      status: 'completed',
-      customer: {
-        id: 'C001',
-        name: 'John Smith'
-      },
-      vendor: {
-        id: 'V001',
-        name: 'Fresh Foods Market'
-      },
-      order: {
-        id: 'ORD-12345',
-        items: 3
-      },
-      paymentMethod: {
-        type: 'credit_card',
-        details: '**** 4242'
-      }
-    },
-    {
-      id: 'TRX-12346',
-      type: 'order_payment',
-      amount: 42.95,
-      commission: 4.30,
-      vendorPayout: 38.65,
-      date: '2025-04-18T10:15:00',
-      status: 'completed',
-      customer: {
-        id: 'C002',
-        name: 'Emma Davis'
-      },
-      vendor: {
-        id: 'V002',
-        name: 'Urban Eats'
-      },
-      order: {
-        id: 'ORD-12346',
-        items: 3
-      },
-      paymentMethod: {
-        type: 'paypal',
-        details: 'emma.davis@example.com'
-      }
-    },
-    {
-      id: 'TRX-12347',
-      type: 'order_payment',
-      amount: 22.96,
-      commission: 2.30,
-      vendorPayout: 20.66,
-      date: '2025-04-18T11:45:00',
-      status: 'processing',
-      customer: {
-        id: 'C003',
-        name: 'Michael Brown'
-      },
-      vendor: {
-        id: 'V001',
-        name: 'Fresh Foods Market'
-      },
-      order: {
-        id: 'ORD-12347',
-        items: 3
-      },
-      paymentMethod: {
-        type: 'credit_card',
-        details: '**** 5678'
-      }
-    },
-    {
-      id: 'TRX-12348',
-      type: 'vendor_payout',
-      amount: 1245.87,
-      commission: 0,
-      vendorPayout: 1245.87,
-      date: '2025-04-17T09:00:00',
-      status: 'completed',
-      customer: null,
-      vendor: {
-        id: 'V001',
-        name: 'Fresh Foods Market'
-      },
-      order: null,
-      paymentMethod: {
-        type: 'bank_transfer',
-        details: 'Weekly payout - ending Apr 16'
-      }
-    },
-    {
-      id: 'TRX-12349',
-      type: 'vendor_payout',
-      amount: 876.25,
-      commission: 0,
-      vendorPayout: 876.25,
-      date: '2025-04-17T09:00:00',
-      status: 'completed',
-      customer: null,
-      vendor: {
-        id: 'V002',
-        name: 'Urban Eats'
-      },
-      order: null,
-      paymentMethod: {
-        type: 'bank_transfer',
-        details: 'Weekly payout - ending Apr 16'
-      }
-    },
-    {
-      id: 'TRX-12350',
-      type: 'refund',
-      amount: 42.95,
-      commission: -4.30,
-      vendorPayout: -38.65,
-      date: '2025-04-18T09:30:00',
-      status: 'completed',
-      customer: {
-        id: 'C004',
-        name: 'Robert Taylor'
-      },
-      vendor: {
-        id: 'V002',
-        name: 'Urban Eats'
-      },
-      order: {
-        id: 'ORD-12349',
-        items: 3
-      },
-      paymentMethod: {
-        type: 'credit_card',
-        details: '**** 9876'
-      }
-    },
-    {
-      id: 'TRX-12351',
-      type: 'order_payment',
-      amount: 21.45,
-      commission: 2.15,
-      vendorPayout: 19.30,
-      date: '2025-04-18T13:20:00',
-      status: 'failed',
-      customer: {
-        id: 'C005',
-        name: 'Lisa Johnson'
-      },
-      vendor: null,
-      order: {
-        id: 'ORD-12348',
-        items: 3
-      },
-      paymentMethod: {
-        type: 'credit_card',
-        details: '**** 3456'
-      },
-      failureReason: 'Card payment declined by issuer'
-    }
-  ];
-  
-  // Mock data for financial summary
-  const financialSummary = {
-    totalRevenue: 143.16,
-    totalCommission: 12.13,
-    totalVendorPayouts: 110.43,
-    refundsAmount: 42.95,
-    successRate: 85.7,
+  const [transactions, setTransactions] = useState([]);
+  const [financialSummary, setFinancialSummary] = useState({
+    totalRevenue: 0,
+    totalCommission: 0,
+    totalVendorPayouts: 0,
+    refundsAmount: 0,
+    successRate: 0,
     paymentMethods: {
-      creditCard: 67.4,
-      paypal: 21.5,
-      applePay: 11.1
+      creditCard: 0,
+      paypal: 0,
+      applePay: 0
     },
-    byVendor: [
-      { name: 'Fresh Foods Market', revenue: 79.76, commission: 7.98 },
-      { name: 'Urban Eats', revenue: 42.95, commission: 4.30 },
-    ],
-    pendingPayouts: 2122.12
-  };
-  
-  // Mock data for commission settings
-  const commissionSettings = {
+    byVendor: [],
+    pendingPayouts: 0
+  });
+  const [commissionSettings, setCommissionSettings] = useState({
     defaultRate: 10.0,
-    vendorSpecific: [
-      { id: 'V001', name: 'Fresh Foods Market', rate: 8.5 },
-      { id: 'V002', name: 'Urban Eats', rate: 7.5 },
-      { id: 'V003', name: 'Health & Wellness Market', rate: 9.0 }
-    ],
+    vendorSpecific: [],
     payoutSchedule: 'weekly',
     minimumPayoutAmount: 50.0,
     processingFees: 'admin',
-    categories: [
-      { name: 'Grocery', rate: 10.0 },
-      { name: 'Restaurant', rate: 15.0 },
-      { name: 'Health Foods', rate: 12.0 }
-    ]
+    categories: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [orderIdMap, setOrderIdMap] = useState({}); // Added state for order ID mapping
+  const [expandedRows, setExpandedRows] = useState({}); // Added state for expanded rows
+
+  // Function to generate simplified order IDs for display
+  const generateOrderIdMap = (orders) => {
+    const idMap = {};
+    orders.forEach((order, index) => {
+      idMap[order.id] = `ORD-${index + 1}`; // e.g., ORD-1, ORD-2
+    });
+    setOrderIdMap(idMap);
   };
-  
-  // Filter transactions based on type, date range, and search term
+
+  // Toggle expanded row
+  const toggleRow = (transactionId) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [transactionId]: !prev[transactionId]
+    }));
+  };
+
+  useEffect(() => {
+    const ordersRef = ref(db, 'orders');
+    const shopsRef = ref(db, 'shops');
+
+    let ordersData = [];
+    let shopsData = [];
+
+    const ordersUnsubscribe = onValue(ordersRef, (snapshot) => {
+      try {
+        const data = snapshot.val();
+        ordersData = data ? Object.keys(data).map(key => ({
+          id: key,
+          ...data[key],
+          timeline: data[key].timeline || [
+            { status: 'order_placed', time: data[key].orderDate, note: 'Order placed successfully' }
+          ]
+        })) : [];
+        processData(ordersData, shopsData);
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+        setError('Failed to load transactions.');
+        setLoading(false);
+      }
+    }, (err) => {
+      console.error('Error fetching orders:', err);
+      setError('Failed to load transactions.');
+      setLoading(false);
+    });
+
+    const shopsUnsubscribe = onValue(shopsRef, (snapshot) => {
+      try {
+        const data = snapshot.val();
+        shopsData = data ? Object.keys(data).map(key => ({
+          id: key,
+          ...data[key]
+        })) : [];
+        processData(ordersData, shopsData);
+      } catch (err) {
+        console.error('Error fetching shops:', err);
+        setError('Failed to load transactions.');
+        setLoading(false);
+      }
+    }, (err) => {
+      console.error('Error fetching shops:', err);
+      setError('Failed to load transactions.');
+      setLoading(false);
+    });
+
+    const processData = (orders, shops) => {
+      try {
+        // Generate order ID mapping
+        generateOrderIdMap(orders);
+
+        const newTransactions = orders.flatMap(order => {
+          const shop = shops.find(s => s.id === order.vendor?.id);
+          const commissionRate = shop?.commissionRate || 10;
+          const commission = order.totalAmount ? (order.totalAmount * commissionRate / 100) : 0;
+          const vendorPayout = order.totalAmount ? (order.totalAmount - commission) : 0;
+
+          const transactionsList = [];
+
+          if (order.status !== 'pending') {
+            transactionsList.push({
+              id: `TRX-${order.id}`,
+              type: 'order_payment',
+              amount: order.totalAmount || 0,
+              commission,
+              vendorPayout,
+              date: order.orderDate,
+              status: order.status === 'delivered' ? 'completed' : order.status === 'cancelled' ? 'failed' : 'processing',
+              customer: {
+                id: order.customer?.id || 'CUST-' + order.id,
+                name: order.customer?.fullName || 'Unknown'
+              },
+              vendor: {
+                id: order.vendor?.id || 'VEND-' + order.id,
+                name: shop?.name || order.vendor?.name || 'Unknown'
+              },
+              order: {
+                id: order.id,
+                displayId: orderIdMap[order.id] || `ORD-${orders.findIndex(o => o.id === order.id) + 1}`, // Use mapped ID
+                items: order.items || [], // Include full items array
+                totalAmount: order.totalAmount || 0
+              },
+              paymentMethod: {
+                type: order.payment?.method || 'credit_card',
+                details: order.payment?.cardLastFour ? `**** ${order.payment.cardLastFour}` : order.payment?.email || 'Unknown'
+              },
+              failureReason: order.status === 'cancelled' ? (order.cancellationReason || 'Order cancelled') : null
+            });
+          }
+
+          if (order.status === 'cancelled' && order.totalAmount) {
+            transactionsList.push({
+              id: `TRX-REF-${order.id}`,
+              type: 'refund',
+              amount: order.totalAmount,
+              commission: -commission,
+              vendorPayout: -vendorPayout,
+              date: order.timeline.find(event => event.status === 'cancelled')?.time || order.orderDate,
+              status: 'completed',
+              customer: {
+                id: order.customer?.id || 'CUST-' + order.id,
+                name: order.customer?.fullName || 'Unknown'
+              },
+              vendor: {
+                id: order.vendor?.id || 'VEND-' + order.id,
+                name: shop?.name || order.vendor?.name || 'Unknown'
+              },
+              order: {
+                id: order.id,
+                displayId: orderIdMap[order.id] || `ORD-${orders.findIndex(o => o.id === order.id) + 1}`, // Use mapped ID
+                items: order.items || [],
+                totalAmount: order.totalAmount || 0
+              },
+              paymentMethod: {
+                type: order.payment?.method || 'credit_card',
+                details: order.payment?.cardLastFour ? `**** ${order.payment.cardLastFour}` : order.payment?.email || 'Unknown'
+              }
+            });
+          }
+
+          return transactionsList;
+        });
+
+        const vendorPayouts = shops.map(shop => {
+          const shopOrders = orders.filter(o => o.vendor?.id === shop.id && o.status === 'delivered');
+          const totalPayout = shopOrders.reduce((sum, order) => {
+            const commission = (order.totalAmount * (shop.commissionRate || 10) / 100);
+            return sum + (order.totalAmount - commission);
+          }, 0);
+
+          if (totalPayout > 0) {
+            return {
+              id: `TRX-PAY-${shop.id}-${Date.now()}`,
+              type: 'vendor_payout',
+              amount: totalPayout,
+              commission: 0,
+              vendorPayout: totalPayout,
+              date: new Date().toISOString(),
+              status: 'completed',
+              customer: null,
+              vendor: {
+                id: shop.id,
+                name: shop.name
+              },
+              order: null,
+              paymentMethod: {
+                type: 'bank_transfer',
+                details: `Weekly payout - ${new Date().toLocaleDateString()}`
+              }
+            };
+          }
+          return null;
+        }).filter(p => p !== null);
+
+        setTransactions([...newTransactions, ...vendorPayouts]);
+
+        const totalRevenue = orders
+          .filter(o => o.status === 'delivered')
+          .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+
+        const totalCommission = orders
+          .filter(o => o.status === 'delivered')
+          .reduce((sum, o) => {
+            const shop = shops.find(s => s.id === o.vendor?.id);
+            return sum + ((o.totalAmount * (shop?.commissionRate || 10) / 100) || 0);
+          }, 0);
+
+        const totalVendorPayouts = totalRevenue - totalCommission;
+
+        const refundsAmount = orders
+          .filter(o => o.status === 'cancelled')
+          .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+
+        const totalTransactions = orders.filter(o => o.status !== 'pending').length;
+        const successfulTransactions = orders.filter(o => o.status === 'delivered').length;
+        const successRate = totalTransactions > 0 ? ((successfulTransactions / totalTransactions) * 100).toFixed(1) : 0;
+
+        const paymentMethodsCount = orders.reduce((acc, o) => {
+          const method = o.payment?.method || 'credit_card';
+          acc[method] = (acc[method] || 0) + 1;
+          return acc;
+        }, {});
+        const totalPayments = Object.values(paymentMethodsCount).reduce((sum, count) => sum + count, 0);
+        const paymentMethods = {
+          creditCard: paymentMethodsCount.credit_card ? ((paymentMethodsCount.credit_card / totalPayments) * 100).toFixed(1) : 67.4,
+          paypal: paymentMethodsCount.paypal ? ((paymentMethodsCount.paypal / totalPayments) * 100).toFixed(1) : 21.5,
+          applePay: paymentMethodsCount.apple_pay ? ((paymentMethodsCount.apple_pay / totalPayments) * 100).toFixed(1) : 11.1
+        };
+
+        const byVendor = shops
+          .filter(s => orders.some(o => o.vendor?.id === s.id))
+          .map(s => {
+            const shopOrders = orders.filter(o => o.vendor?.id === s.id && o.status === 'delivered');
+            const revenue = shopOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+            const commission = shopOrders.reduce((sum, o) => sum + ((o.totalAmount * (s.commissionRate || 10) / 100) || 0), 0);
+            return {
+              name: s.name,
+              revenue,
+              commission
+            };
+          });
+
+        const pendingPayouts = orders
+          .filter(o => o.status === 'delivered' && !o.paidOut)
+          .reduce((sum, o) => {
+            const shop = shops.find(s => s.id === o.vendor?.id);
+            const commission = (o.totalAmount * (shop?.commissionRate || 10) / 100);
+            return sum + (o.totalAmount - commission);
+          }, 0);
+
+        setFinancialSummary({
+          totalRevenue,
+          totalCommission,
+          totalVendorPayouts,
+          refundsAmount,
+          successRate,
+          paymentMethods,
+          byVendor,
+          pendingPayouts
+        });
+
+        const uniqueCategories = [...new Set(shops.map(s => s.category))].map(cat => ({
+          name: cat,
+          rate: 10.0
+        }));
+
+        setCommissionSettings({
+          defaultRate: 10.0,
+          vendorSpecific: shops.map(s => ({
+            id: s.id,
+            name: s.name,
+            rate: s.commissionRate || 10.0
+          })),
+          payoutSchedule: 'weekly',
+          minimumPayoutAmount: 50.0,
+          processingFees: 'admin',
+          categories: uniqueCategories
+        });
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Error processing data:', err);
+        setError('Failed to process transactions.');
+        setLoading(false);
+      }
+    };
+
+    return () => {
+      ordersUnsubscribe();
+      shopsUnsubscribe();
+    };
+  }, []);
+
   const filteredTransactions = transactions.filter(transaction => {
-    // Filter by transaction type
     if (transactionType !== 'all' && transaction.type !== transactionType) {
       return false;
     }
     
-    // Filter by date range
     const transactionDate = new Date(transaction.date);
     const now = new Date();
     
@@ -266,27 +358,22 @@ const PaymentCommission = () => {
       }
     }
     
-    // Filter by search term
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       
-      // Check if search term is in transaction ID
       if (transaction.id.toLowerCase().includes(searchLower)) {
         return true;
       }
       
-      // Check if search term is in customer name
       if (transaction.customer && transaction.customer.name.toLowerCase().includes(searchLower)) {
         return true;
       }
       
-      // Check if search term is in vendor name
       if (transaction.vendor && transaction.vendor.name.toLowerCase().includes(searchLower)) {
         return true;
       }
       
-      // Check if search term is in order ID
-      if (transaction.order && transaction.order.id.toLowerCase().includes(searchLower)) {
+      if (transaction.order && transaction.order.displayId.toLowerCase().includes(searchLower)) { // Updated to use displayId
         return true;
       }
       
@@ -296,17 +383,14 @@ const PaymentCommission = () => {
     return true;
   });
   
-  // Function to format currency
-  // Change this in your React component
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 2
-  }).format(amount);
-};
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
   
-  // Function to format date
   const formatDate = (dateString) => {
     const options = { 
       year: 'numeric', 
@@ -318,7 +402,6 @@ const formatCurrency = (amount) => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
   
-  // Function to get transaction type display text
   const getTransactionTypeText = (type) => {
     switch(type) {
       case 'order_payment':
@@ -332,7 +415,6 @@ const formatCurrency = (amount) => {
     }
   };
   
-  // Function to get transaction status display elements
   const getTransactionStatus = (status) => {
     switch(status) {
       case 'completed':
@@ -363,7 +445,6 @@ const formatCurrency = (amount) => {
     }
   };
   
-  // Function to get payment method icon
   const getPaymentMethodIcon = (type) => {
     switch(type) {
       case 'credit_card':
@@ -377,16 +458,121 @@ const formatCurrency = (amount) => {
     }
   };
   
-  // Function to handle download report
   const handleDownloadReport = () => {
-    alert('Downloading financial report...');
-    // In a real app, this would trigger a download of a CSV or PDF report
+    let csvContent = '';
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    
+    if (activeTab === 'transactions') {
+      const headers = [
+        'Transaction ID',
+        'Order ID',
+        'Type',
+        'Date',
+        'Amount (INR)',
+        'Commission (INR)',
+        'Vendor Payout (INR)',
+        'Party Name',
+        'Payment Method',
+        'Status',
+        'Failure Reason'
+      ];
+      
+      const rows = filteredTransactions.map(transaction => [
+        transaction.id,
+        transaction.order ? transaction.order.displayId : '', // Use displayId
+        getTransactionTypeText(transaction.type),
+        formatDate(transaction.date),
+        transaction.amount,
+        transaction.commission,
+        transaction.vendorPayout,
+        transaction.type === 'vendor_payout' ? (transaction.vendor?.name || 'N/A') : (transaction.customer?.name || 'N/A'),
+        `${transaction.paymentMethod.type} (${transaction.paymentMethod.details})`,
+        transaction.status,
+        transaction.failureReason || ''
+      ]);
+      
+      csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `transactions-report-${timestamp}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (activeTab === 'financial') {
+      const summaryHeaders = [
+        'Metric',
+        'Value'
+      ];
+      
+      const summaryRows = [
+        ['Total Revenue (INR)', financialSummary.totalRevenue],
+        ['Total Commission (INR)', financialSummary.totalCommission],
+        ['Total Vendor Payouts (INR)', financialSummary.totalVendorPayouts],
+        ['Refunds Amount (INR)', financialSummary.refundsAmount],
+        ['Transaction Success Rate (%)', financialSummary.successRate],
+        ['Pending Payouts (INR)', financialSummary.pendingPayouts]
+      ];
+      
+      const paymentMethodsHeaders = [
+        'Payment Method',
+        'Percentage (%)'
+      ];
+      
+      const paymentMethodsRows = [
+        ['Credit Card', financialSummary.paymentMethods.creditCard],
+        ['PayPal', financialSummary.paymentMethods.paypal],
+        ['Apple Pay', financialSummary.paymentMethods.applePay]
+      ];
+      
+      const vendorHeaders = [
+        'Vendor Name',
+        'Revenue (INR)',
+        'Commission (INR)',
+        'Commission Rate (%)'
+      ];
+      
+      const vendorRows = financialSummary.byVendor.map(vendor => [
+        vendor.name,
+        vendor.revenue,
+        vendor.commission,
+        (vendor.commission / (vendor.revenue || 1) * 100).toFixed(1)
+      ]);
+      
+      csvContent = [
+        'Financial Summary',
+        summaryHeaders.join(','),
+        ...summaryRows.map(row => row.map(cell => `"${cell}"`).join(',')),
+        '',
+        'Payment Methods Distribution',
+        paymentMethodsHeaders.join(','),
+        ...paymentMethodsRows.map(row => row.map(cell => `"${cell}"`).join(',')),
+        '',
+        'Vendor Performance',
+        vendorHeaders.join(','),
+        ...vendorRows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `financial-summary-report-${timestamp}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
   
-  // Render the appropriate content based on active tab
   return (
     <div className="payment-commission">
       <h1>Payment & Commission</h1>
+      
+      {error && <div className="error-message">{error}</div>}
+      {loading && <div className="loading-message">Loading transactions...</div>}
       
       <div className="payment-tabs">
         <button 
@@ -481,74 +667,102 @@ const formatCurrency = (amount) => {
               <tbody>
                 {filteredTransactions.length > 0 ? (
                   filteredTransactions.map(transaction => (
-                    <tr key={transaction.id} className={`transaction-row ${transaction.type}`}>
-                      <td className="transaction-id">
-                        <span>{transaction.id}</span>
-                        {transaction.order && (
-                          <span className="order-id">{transaction.order.id}</span>
-                        )}
-                      </td>
-                      <td>
-                        <span className={`transaction-type ${transaction.type}`}>
-                          {transaction.type === 'order_payment' && (
-                            <ArrowDown className="transaction-type-icon income" />
+                    <React.Fragment key={transaction.id}>
+                      <tr 
+                        className={`transaction-row ${transaction.type}`}
+                        onClick={() => toggleRow(transaction.id)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <td className="transaction-id">
+                          <span>{transaction.id}</span>
+                          {transaction.order && (
+                            <span className="order-id">{transaction.order.displayId}</span>
                           )}
-                          {transaction.type === 'vendor_payout' && (
-                            <ArrowUp className="transaction-type-icon expense" />
+                        </td>
+                        <td>
+                          <span className={`transaction-type ${transaction.type}`}>
+                            {transaction.type === 'order_payment' && (
+                              <ArrowDown className="transaction-type-icon income" />
+                            )}
+                            {transaction.type === 'vendor_payout' && (
+                              <ArrowUp className="transaction-type-icon expense" />
+                            )}
+                            {transaction.type === 'refund' && (
+                              <RefreshCw className="transaction-type-icon refund" />
+                            )}
+                            {getTransactionTypeText(transaction.type)}
+                          </span>
+                        </td>
+                        <td>{formatDate(transaction.date)}</td>
+                        <td className="amount-cell">
+                          {formatCurrency(transaction.amount)}
+                        </td>
+                        <td className="commission-cell">
+                          {formatCurrency(transaction.commission)}
+                        </td>
+                        <td className="payout-cell">
+                          {formatCurrency(transaction.vendorPayout)}
+                        </td>
+                        <td>
+                          {transaction.type === 'refund' || transaction.type === 'order_payment' ? (
+                            <div className="party-info">
+                              <div className="party-name">
+                                {transaction.customer ? transaction.customer.name : 'N/A'}
+                              </div>
+                              <div className="payment-method">
+                                {getPaymentMethodIcon(transaction.paymentMethod.type)}
+                                <span>{transaction.paymentMethod.details}</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="party-info">
+                              <div className="party-name">
+                                {transaction.vendor ? transaction.vendor.name : 'N/A'}
+                              </div>
+                              <div className="payment-method">
+                                {getPaymentMethodIcon(transaction.paymentMethod.type)}
+                                <span>{transaction.paymentMethod.details}</span>
+                              </div>
+                            </div>
                           )}
-                          {transaction.type === 'refund' && (
-                            <RefreshCw className="transaction-type-icon refund" />
+                        </td>
+                        <td>
+                          {getTransactionStatus(transaction.status)}
+                          {transaction.status === 'failed' && transaction.failureReason && (
+                            <div className="failure-reason">
+                              {transaction.failureReason}
+                            </div>
                           )}
-                          {getTransactionTypeText(transaction.type)}
-                        </span>
-                      </td>
-                      <td>{formatDate(transaction.date)}</td>
-                      <td className="amount-cell">
-                        {formatCurrency(transaction.amount)}
-                      </td>
-                      <td className="commission-cell">
-                        {formatCurrency(transaction.commission)}
-                      </td>
-                      <td className="payout-cell">
-                        {formatCurrency(transaction.vendorPayout)}
-                      </td>
-                      <td>
-                        {transaction.type === 'refund' || transaction.type === 'order_payment' ? (
-                          <div className="party-info">
-                            <div className="party-name">
-                              {transaction.customer ? transaction.customer.name : 'N/A'}
+                        </td>
+                      </tr>
+                      {expandedRows[transaction.id] && transaction.order && (
+                        <tr className="expanded-row">
+                          <td colSpan="8">
+                            <div className="expanded-content">
+                              <h4>Order Details: {transaction.order.displayId}</h4>
+                              <p><strong>Total Amount:</strong> {formatCurrency(transaction.order.totalAmount)}</p>
+                              <p><strong>Items:</strong></p>
+                              <ul>
+                                {transaction.order.items.length > 0 ? (
+                                  transaction.order.items.map((item, index) => (
+                                    <li key={index}>
+                                      {item.name || 'Item'} (Qty: {item.quantity || 1}) - {formatCurrency(item.price || 0)}
+                                    </li>
+                                  ))
+                                ) : (
+                                  <li>No items available</li>
+                                )}
+                              </ul>
                             </div>
-                            <div className="payment-method">
-                              {getPaymentMethodIcon(transaction.paymentMethod.type)}
-                              <span>{transaction.paymentMethod.details}</span>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="party-info">
-                            <div className="party-name">
-                              {transaction.vendor ? transaction.vendor.name : 'N/A'}
-                            </div>
-                            <div className="payment-method">
-                              {getPaymentMethodIcon(transaction.paymentMethod.type)}
-                              <span>{transaction.paymentMethod.details}</span>
-                            </div>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        {getTransactionStatus(transaction.status)}
-                        {transaction.status === 'failed' && transaction.failureReason && (
-                          <div className="failure-reason">
-                            {transaction.failureReason}
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))
                 ) : (
                   <tr>
                     <td colSpan="8" className="no-results">
-                      No transactions found matching your criteria.
+                      {loading ? 'Loading...' : 'No transactions found matching your criteria.'}
                     </td>
                   </tr>
                 )}
@@ -631,8 +845,8 @@ const formatCurrency = (amount) => {
                   <div className="chart-placeholder">
                     <div className="pie-chart-placeholder">
                       <div className="pie-segment credit-card" style={{transform: 'rotate(0deg)', clipPath: 'polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%)'}}></div>
-                      <div className="pie-segment paypal" style={{transform: 'rotate(240deg)', clipPath: 'polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%, 75% 50%)'}}></div>
-                      <div className="pie-segment apple-pay" style={{transform: 'rotate(320deg)', clipPath: 'polygon(50% 50%, 50% 0%, 75% 0%, 75% 25%)'}}></div>
+                      <div className="pie-segment paypal" style={{transform: `rotate(${financialSummary.paymentMethods.creditCard * 3.6}deg)`, clipPath: 'polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%, 75% 50%)'}}></div>
+                      <div className="pie-segment apple-pay" style={{transform: `rotate(${(financialSummary.paymentMethods.creditCard + financialSummary.paymentMethods.paypal) * 3.6}deg)`, clipPath: 'polygon(50% 50%, 50% 0%, 75% 0%, 75% 25%)'}}></div>
                     </div>
                   </div>
                   <div className="chart-legend">
@@ -675,7 +889,7 @@ const formatCurrency = (amount) => {
                         </div>
                         <div className="metric">
                           <span className="metric-label">Rate</span>
-                          <span className="metric-value">{(vendor.commission / vendor.revenue * 100).toFixed(1)}%</span>
+                          <span className="metric-value">{(vendor.commission / (vendor.revenue || 1) * 100).toFixed(1)}%</span>
                         </div>
                       </div>
                     </div>

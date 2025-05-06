@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+
+
+import React, { useState, useEffect } from 'react';
 import { 
   Truck, 
   MapPin, 
@@ -13,175 +15,136 @@ import {
   AlertTriangle,
   Phone
 } from 'lucide-react';
-import '../styles/DeliveryManagement.css'; // Import your CSS file for styling
+import { ref, onValue } from 'firebase/database';
+import { db } from '../firebase/config';
+import '../styles/DeliveryManagement.css';
 
 const DeliveryManagement = () => {
-  // State for active tab
   const [activeTab, setActiveTab] = useState('all');
-  
-  // State for search term
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // State for selected delivery
   const [selectedDelivery, setSelectedDelivery] = useState(null);
-  
-  // Mock data for deliveries
-  const deliveries = [
-    {
-      id: 'DEL-12345',
-      orderId: 'ORD-12345',
-      customerName: 'John Smith',
-      customerAddress: '123 Broadway, New York, NY',
-      customerPhone: '+1 (555) 123-4567',
-      shopName: 'Fresh Foods Market',
-      shopAddress: '230 Broadway, New York, NY',
-      items: 3,
-      status: 'delivered',
-      deliveryPerson: {
-        id: 'D001',
-        name: 'Mike Johnson',
-        phone: '+1 (555) 987-6543',
-        rating: 4.8,
-        totalDeliveries: 587
-      },
-      timestamps: {
-        assigned: '2025-04-17T14:40:00',
-        pickedUp: '2025-04-17T15:00:00',
-        delivered: '2025-04-17T15:30:00'
-      },
-      deliveryNotes: 'Leave at door, no contact delivery',
-      route: {
-        distance: '2.3 miles',
-        estimatedTime: '15 minutes'
+  const [deliveries, setDeliveries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [orderIdMap, setOrderIdMap] = useState({}); // Added state for order ID mapping
+
+  // Function to generate simplified order IDs for display
+  const generateOrderIdMap = (orders) => {
+    const idMap = {};
+    orders.forEach((order, index) => {
+      idMap[order.id] = `ORD-${index + 1}`; // e.g., ORD-1, ORD-2
+    });
+    setOrderIdMap(idMap);
+  };
+
+  // Fetch orders from Firebase and transform into deliveries
+  useEffect(() => {
+    const ordersRef = ref(db, 'orders');
+    const unsubscribe = onValue(ordersRef, (snapshot) => {
+      try {
+        const data = snapshot.val();
+        const ordersData = data ? Object.keys(data).map(key => ({
+          id: key,
+          ...data[key],
+          timeline: data[key].timeline || [
+            { status: 'order_placed', time: data[key].orderDate || new Date().toISOString(), note: 'Order placed successfully' }
+          ]
+        })) : [];
+
+        // Generate order ID mapping
+        generateOrderIdMap(ordersData);
+
+        // Transform orders into deliveries
+        const transformedDeliveries = ordersData
+          .filter(order => {
+            if (order.status === 'pending') return false;
+            if (!order.customer || !order.customer.fullName) {
+              console.warn(`Skipping order ${order.id}: Missing customer data`, order);
+              return false;
+            }
+            return true;
+          })
+          .map(order => {
+            let deliveryStatus;
+            if (order.status === 'cancelled') {
+              deliveryStatus = 'failed';
+            } else if (order.status === 'delivered') {
+              deliveryStatus = 'delivered';
+            } else if (order.status === 'out_for_delivery') {
+              deliveryStatus = 'in_progress';
+            } else if (order.status === 'processing' || order.status === 'prepared') {
+              deliveryStatus = 'assigned';
+            } else {
+              deliveryStatus = 'pending';
+            }
+
+            const assignedTime = order.timeline.find(event => event.status === 'order_confirmed')?.time || order.orderDate;
+            const pickedUpTime = order.timeline.find(event => event.status === 'out_for_delivery')?.time;
+            const deliveredTime = order.timeline.find(event => event.status === 'delivered')?.time;
+
+            const route = order.vendor ? {
+              distance: order.vendor.distance || '1.0 miles',
+              estimatedTime: `${Math.round(parseFloat(order.vendor.distance || 1) * 10)} minutes`
+            } : null;
+
+            return {
+              id: `DEL-${order.id}`,
+              orderId: order.id,
+              displayOrderId: orderIdMap[order.id] || `ORD-${ordersData.findIndex(o => o.id === order.id) + 1}`, // Fallback in case map isn't ready
+              customerName: order.customer.fullName,
+              customerAddress: `${order.customer.address || 'N/A'}, ${order.customer.city || 'N/A'}, ${order.customer.pincode || 'N/A'}`,
+              customerPhone: order.customer.phone || 'Not provided',
+              shopName: order.vendor?.name || null,
+              shopAddress: order.vendor?.location?.address || null,
+              items: order.items?.length || 0,
+              status: deliveryStatus,
+              deliveryPerson: order.deliveryPerson || null,
+              timestamps: {
+                assigned: assignedTime,
+                pickedUp: pickedUpTime,
+                delivered: deliveredTime
+              },
+              deliveryNotes: 'Contact customer upon arrival',
+              route: route,
+              failureReason: order.status === 'cancelled' ? order.cancellationReason || 'Order cancelled' : null
+            };
+          });
+
+        setDeliveries(transformedDeliveries);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching deliveries:', err);
+        setError('Failed to load deliveries.');
+        setDeliveries([]);
+        setLoading(false);
       }
-    },
-    {
-      id: 'DEL-12346',
-      orderId: 'ORD-12346',
-      customerName: 'Emma Davis',
-      customerAddress: '456 Park Ave, New York, NY',
-      customerPhone: '+1 (555) 234-5678',
-      shopName: 'Urban Eats',
-      shopAddress: '500 Park Ave, New York, NY',
-      items: 3,
-      status: 'in_progress',
-      deliveryPerson: {
-        id: 'D002',
-        name: 'Sarah Wilson',
-        phone: '+1 (555) 876-5432',
-        rating: 4.9,
-        totalDeliveries: 435
-      },
-      timestamps: {
-        assigned: '2025-04-18T10:30:00',
-        pickedUp: '2025-04-18T10:45:00',
-        delivered: null
-      },
-      deliveryNotes: 'Call customer upon arrival',
-      route: {
-        distance: '1.7 miles',
-        estimatedTime: '12 minutes'
-      }
-    },
-    {
-      id: 'DEL-12347',
-      orderId: 'ORD-12347',
-      customerName: 'Michael Brown',
-      customerAddress: '789 5th Ave, New York, NY',
-      customerPhone: '+1 (555) 345-6789',
-      shopName: 'Fresh Foods Market',
-      shopAddress: '800 5th Ave, New York, NY',
-      items: 3,
-      status: 'assigned',
-      deliveryPerson: {
-        id: 'D003',
-        name: 'Alex Rodriguez',
-        phone: '+1 (555) 765-4321',
-        rating: 4.7,
-        totalDeliveries: 321
-      },
-      timestamps: {
-        assigned: '2025-04-18T12:00:00',
-        pickedUp: null,
-        delivered: null
-      },
-      deliveryNotes: 'Deliver to doorman',
-      route: {
-        distance: '0.8 miles',
-        estimatedTime: '8 minutes'
-      }
-    },
-    {
-      id: 'DEL-12348',
-      orderId: 'ORD-12349',
-      customerName: 'Robert Taylor',
-      customerAddress: '555 Hudson St, New York, NY',
-      customerPhone: '+1 (555) 456-7890',
-      shopName: 'Urban Eats',
-      shopAddress: '600 Hudson St, New York, NY',
-      items: 3,
-      status: 'failed',
-      deliveryPerson: {
-        id: 'D004',
-        name: 'Jessica Lee',
-        phone: '+1 (555) 654-3210',
-        rating: 4.6,
-        totalDeliveries: 274
-      },
-      timestamps: {
-        assigned: '2025-04-18T09:15:00',
-        pickedUp: '2025-04-18T09:25:00',
-        delivered: null
-      },
-      deliveryNotes: 'Building with doorman',
-      failureReason: 'Customer not available after multiple attempts',
-      route: {
-        distance: '1.2 miles',
-        estimatedTime: '10 minutes'
-      }
-    },
-    {
-      id: 'DEL-12349',
-      orderId: 'ORD-12348',
-      customerName: 'Lisa Johnson',
-      customerAddress: '321 West St, New York, NY',
-      customerPhone: '+1 (555) 567-8901',
-      shopName: null, // Not assigned to a shop yet
-      shopAddress: null,
-      items: 3,
-      status: 'pending',
-      deliveryPerson: null, // Not assigned to a delivery person yet
-      timestamps: {
-        assigned: null,
-        pickedUp: null,
-        delivered: null
-      },
-      deliveryNotes: 'Apartment 5B, buzz 5B for entry',
-      route: null // No route yet
-    }
-  ];
-  
+    }, (err) => {
+      console.error('Error fetching deliveries:', err);
+      setError('Failed to load deliveries.');
+      setDeliveries([]);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   // Filter deliveries based on active tab and search term
   const filteredDeliveries = deliveries.filter(delivery => {
-    // Filter by status
     if (activeTab !== 'all' && delivery.status !== activeTab) {
       return false;
     }
-    
-    // Filter by search term
-    if (searchTerm && !delivery.id.toLowerCase().includes(searchTerm.toLowerCase()) && 
-        !delivery.orderId.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    if (searchTerm && 
+        !delivery.id.toLowerCase().includes(searchTerm.toLowerCase()) && 
+        !delivery.displayOrderId.toLowerCase().includes(searchTerm.toLowerCase()) && // Updated to use displayOrderId
         !delivery.customerName.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false;
     }
-    
     return true;
   });
-  
+
   // Function to format date
   const formatDate = (dateString) => {
     if (!dateString) return 'Not yet';
-    
     const options = { 
       year: 'numeric', 
       month: 'short', 
@@ -191,58 +154,47 @@ const DeliveryManagement = () => {
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-  
+
   // Function to get status text
   const getStatusText = (status) => {
     switch(status) {
-      case 'pending':
-        return 'Pending Assignment';
-      case 'assigned':
-        return 'Assigned';
-      case 'in_progress':
-        return 'In Progress';
-      case 'delivered':
-        return 'Delivered';
-      case 'failed':
-        return 'Delivery Failed';
-      default:
-        return status;
+      case 'pending': return 'Pending Assignment';
+      case 'assigned': return 'Assigned';
+      case 'in_progress': return 'In Progress';
+      case 'delivered': return 'Delivered';
+      case 'failed': return 'Delivery Failed';
+      default: return status;
     }
   };
-  
+
   // Function to get status icon
   const getStatusIcon = (status) => {
     switch(status) {
-      case 'pending':
-        return <Clock className="status-icon pending" />;
-      case 'assigned':
-        return <User className="status-icon assigned" />;
-      case 'in_progress':
-        return <Truck className="status-icon in-progress" />;
-      case 'delivered':
-        return <CheckCircle className="status-icon delivered" />;
-      case 'failed':
-        return <AlertTriangle className="status-icon failed" />;
-      default:
-        return <Clock className="status-icon" />;
+      case 'pending': return <Clock className="status-icon pending" />;
+      case 'assigned': return <User className="status-icon assigned" />;
+      case 'in_progress': return <Truck className="status-icon in-progress" />;
+      case 'delivered': return <CheckCircle className="status-icon delivered" />;
+      case 'failed': return <AlertTriangle className="status-icon failed" />;
+      default: return <Clock className="status-icon" />;
     }
   };
-  
+
   // Function to assign delivery person
   const assignDeliveryPerson = (deliveryId) => {
     alert(`Delivery ${deliveryId} would be assigned to the closest available delivery person.`);
-    // In a real app, this would make an API call to assign the delivery
+    // In a real app, this would update the Firebase database
   };
-  
+
   // If a delivery is selected, show detailed view
   if (selectedDelivery) {
     const delivery = deliveries.find(d => d.id === selectedDelivery);
-    
+    if (!delivery) return <div className="delivery-management">Delivery not found</div>;
+
     return (
       <div className="delivery-management">
         <div className="delivery-detail-header">
           <button className="back-button" onClick={() => setSelectedDelivery(null)}>
-            &larr; Back to Deliveries
+            ← Back to Deliveries
           </button>
           <h1>Delivery Details: {delivery.id}</h1>
           <div className={`delivery-status ${delivery.status}`}>
@@ -254,7 +206,7 @@ const DeliveryManagement = () => {
         <div className="delivery-detail-grid">
           <div className="delivery-detail-card order-info">
             <h2>Order Information</h2>
-            <p><strong>Order ID:</strong> {delivery.orderId}</p>
+            <p><strong>Order ID:</strong> {orderIdMap[delivery.orderId] || delivery.displayOrderId}</p>
             <p><strong>Shop:</strong> {delivery.shopName || 'Not assigned yet'}</p>
             <p><strong>Shop Address:</strong> {delivery.shopAddress || 'Not available'}</p>
             <p><strong>Items:</strong> {delivery.items}</p>
@@ -291,11 +243,11 @@ const DeliveryManagement = () => {
                 <div className="delivery-person-stats">
                   <div className="stat-item">
                     <span className="stat-label">Total Deliveries</span>
-                    <span className="stat-value">{delivery.deliveryPerson.totalDeliveries}</span>
+                    <span className="stat-value">{delivery.deliveryPerson.totalDeliveries || 'N/A'}</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">Phone</span>
-                    <span className="stat-value">{delivery.deliveryPerson.phone}</span>
+                    <span className="stat-value">{delivery.deliveryPerson.phone || 'Not provided'}</span>
                   </div>
                 </div>
               </>
@@ -389,11 +341,13 @@ const DeliveryManagement = () => {
       </div>
     );
   }
-  
-  // Render the list view
+
   return (
     <div className="delivery-management">
       <h1>Delivery Management</h1>
+      
+      {error && <div className="error-message">{error}</div>}
+      {loading && <div className="loading-message">Loading deliveries...</div>}
       
       <div className="delivery-filters">
         <div className="search-container">
@@ -466,7 +420,7 @@ const DeliveryManagement = () => {
                 <div className="delivery-summary">
                   <div className="order-info">
                     <span className="label">Order ID:</span>
-                    <span className="value">{delivery.orderId}</span>
+                    <span className="value">{orderIdMap[delivery.orderId] || delivery.displayOrderId}</span>
                   </div>
                   <div className="customer-info">
                     <span className="label">Customer:</span>
@@ -550,7 +504,7 @@ const DeliveryManagement = () => {
           ))
         ) : (
           <div className="no-deliveries-found">
-            <p>No deliveries found matching your criteria.</p>
+            <p>{loading ? 'Loading...' : 'No deliveries found matching your criteria.'}</p>
           </div>
         )}
       </div>
